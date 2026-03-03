@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Jogue o clássico Campo Minado online gratuitamente.">
+    <meta name="keywords" content="campo minado, minesweeper, campo minado online, campo minado original, campo minado windows, minesweeper online, campo minado clássico">
+    <meta name="author" content="Campo Minado Online">
+    <meta name="robots" content="index, follow">
+    <link rel="shortcut icon" href="campominado.ico" type="image/x-icon">
+    <title>Campo Minado</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4741325548294598" crossorigin="anonymous"></script>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "VideoGame",
+            "name": "Campo Minado",
+            "description": "Uma versão web clássica e fiel do jogo de estratégia Campo Minado.",
+            "genre": [
+                "Puzzle",
+                "Strategy"
+            ],
+            "gamePlatform": "Web Browser",
+            "applicationCategory": "Game",
+            "operatingSystem": "Any",
+            "inLanguage": "pt-BR",
+            "isAccessibleForFree": true
+        }
+    </script>
+    <style>
+        :root {
+            --bg-color: #c0c0c0;
+            --border-light: #ffffff;
+            --border-dark: #808080;
+            --border-darker: #a0a0a0;
+            --blue: #0000ff;
+            --green: #008000;
+            --red: #ff0000;
+            --dark-blue: #000080;
+            --maroon: #800000;
+            --teal: #008080;
+            --black: #000000;
+            --gray: #808080;
+            --menu-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E")
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none
+        }
+
+        img {
+            image-rendering: -moz-crisp-edges;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            image-rendering: pixelated;
+            -ms-interpolation-mode: nearest-neighbor;
+            display: block;
+            pointer-events: none
+        }
+
+        img:not([src]),
+        img[src=""] {
+            opacity: 0
+        }
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: var(--bg-color);
+            font-family: 'Tahoma', 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center
+        }
+
+        .inset {
+            border: 4px solid;
+            border-color: var(--border-dark) var(--border-light) var(--border-light) var(--border-dark);
+            border-top-right-radius: 2px;
+            border-bottom-left-radius: 2px;
+            overflow: hidden
+        }
+
+        #main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start
+        }
+
+        #main-wrapper {
+            display: inline-flex;
+            flex-direction: column;
+            padding: 4px;
+            background-color: var(--bg-color);
+            border: 3px solid;
+            border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light);
+            position: relative
+        }
+
+        #game-area-wrapper {
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+        }
+
+        #game-area {
+            display: flex;
+            flex-direction: column;
+            padding: 10px
+        }
+
+        #status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            margin-bottom: 10px;
+            background-color: var(--bg-color)
+        }
+
+        .digital-display {
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 78px;
+            height: 44px;
+            overflow: hidden;
+            padding: 0;
+            border-top: 2px solid var(--border-dark);
+            border-left: 2px solid var(--border-dark);
+            border-right: 2px solid var(--border-light);
+            border-bottom: 2px solid var(--border-light);
+            position: relative
+        }
+
+        .digital-display img {
+            width: 28px;
+            height: 40px
+        }
+
+        #face-button {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            background-color: var(--bg-color);
+            outline: none;
+            padding: 0;
+            border-top: 4px solid var(--border-light);
+            border-left: 4px solid var(--border-light);
+            border-right: 4px solid var(--border-dark);
+            border-bottom: 4px solid var(--border-dark);
+            box-shadow: -1px -1px 0px 0px var(--border-darker);
+            position: relative
+        }
+
+        #face-button img {
+            width: 34px;
+            height: 34px;
+            pointer-events: none
+        }
+
+        #face-button:active {
+            border-top: 4px solid var(--border-dark);
+            border-left: 4px solid var(--border-dark);
+            border-right: 1px solid var(--border-dark);
+            border-bottom: 1px solid var(--border-dark);
+            padding-top: 2px;
+            padding-left: 2px;
+            box-shadow: none
+        }
+
+        #board-viewport {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0
+        }
+
+        #board-outer {
+            padding: 0;
+            display: block;
+            border-top: 6px solid var(--border-dark);
+            border-left: 6px solid var(--border-dark);
+            border-right: 4px solid var(--border-light);
+            border-bottom: 4px solid var(--border-light);
+            border-top-right-radius: 2px;
+            border-bottom-left-radius: 2px;
+            overflow: hidden
+        }
+
+        #board {
+            display: grid;
+            background-color: var(--border-dark);
+            gap: 0
+        }
+
+        .cell {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: default
+        }
+
+        .cell img.full-img {
+            width: 32px;
+            height: 32px
+        }
+
+        .cell.closed {
+            background-color: var(--bg-color);
+            border: 4px solid;
+            border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light)
+        }
+
+        .cell.closed.active-press {
+            border: 1px solid var(--border-dark);
+            background-color: var(--bg-color)
+        }
+
+        .cell.open {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-dark)
+        }
+
+        .cell.mine {
+            background-color: var(--red)!important
+        }
+
+        #board-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .coord-top {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 6px;
+            flex-direction: row;
+            z-index: 5;
+            pointer-events: none;
+            margin-bottom: 0px;
+        }
+
+        .coord-left {
+            display: none;
+            position: absolute;
+            right: 100%;
+            top: 6px;
+            flex-direction: column;
+            z-index: 5;
+            pointer-events: none;
+            margin-right: 0px;
+        }
+
+        .coord-label {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: #555;
+            font-family: 'Tahoma', sans-serif;
+            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.8);
+        }
+
+        .coord-top .coord-label {
+            width: 32px;
+            height: 12px;
+        }
+
+        .coord-left .coord-label {
+            width: 14px;
+            height: 32px;
+        }
+
+        #board-wrapper.show-coords .coord-top {
+            display: flex;
+        }
+
+        #board-wrapper.show-coords .coord-left {
+            display: flex;
+        }
+
+        .links-container {
+            font-family: 'Tahoma', sans-serif;
+            font-size: 11px;
+            color: #000;
+            display: flex;
+            gap: 8px
+        }
+
+        #header-options {
+            margin-bottom: 6px;
+            padding-left: 2px;
+            cursor: default;
+            position: relative;
+            width: 100%
+        }
+
+        #header-options .menu-wrapper:last-child {
+            margin-left: auto
+        }
+
+        #header-options .menu-wrapper:last-child .menu-dropdown {
+            right: 0;
+            left: auto;
+            box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.15)
+        }
+
+        .menu-wrapper {
+            position: relative;
+            display: inline-block
+        }
+
+        .menu-option {
+            padding: 2px 6px;
+            cursor: pointer
+        }
+
+        .menu-option:hover {
+            background-color: rgba(0, 0, 0, 0.05)
+        }
+
+        .menu-option span {
+            text-decoration: underline
+        }
+
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 100;
+            background-color: var(--bg-color);
+            background-image: var(--menu-texture);
+            border: 1px solid var(--border-darker);
+            box-shadow: -3px 3px 0px rgba(0, 0, 0, 0.15);
+            min-width: 140px;
+            padding: 2px 0
+        }
+
+        .menu-dropdown.show {
+            display: block
+        }
+
+        .menu-item {
+            padding: 6px 12px 6px 28px;
+            font-size: 11px;
+            cursor: pointer;
+            position: relative;
+            white-space: nowrap;
+            color: black;
+            transition: background 0.1s
+        }
+
+        .menu-item:hover {
+            background-color: rgba(0, 0, 0, 0.08)
+        }
+
+        .menu-item.selected::before {
+            content: '✓';
+            position: absolute;
+            left: 10px;
+            font-weight: bold
+        }
+
+        .menu-item-with-submenu:hover>.submenu-side {
+            display: block
+        }
+
+        .submenu-side {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: -1px;
+            background-color: var(--bg-color);
+            background-image: var(--menu-texture);
+            border: 1px solid var(--border-darker);
+            box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.15);
+            padding: 10px;
+            min-width: 130px;
+            color: black;
+            cursor: default
+        }
+
+        .submenu-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            gap: 10px
+        }
+
+        .submenu-row label {
+            font-size: 10px
+        }
+
+        .submenu-row input {
+            width: 45px;
+            font-size: 10px;
+            padding: 1px 3px;
+            border: 1px solid var(--border-dark);
+            background: white;
+            outline: none;
+            -moz-appearance: textfield
+        }
+
+        .submenu-row input::-webkit-outer-spin-button,
+        .submenu-row input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0
+        }
+
+        .submenu-apply-btn {
+            width: 100%;
+            margin-top: 5px;
+            padding: 4px;
+            font-size: 10px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-dark);
+            cursor: pointer
+        }
+
+        .submenu-apply-btn:hover {
+            background-color: #d0d0d0
+        }
+
+        .submenu-apply-btn:active {
+            background-color: #b0b0b0
+        }
+
+        #footer-links {
+            margin-top: 6px;
+            width: 100%;
+            justify-content: flex-end;
+            padding-right: 2px
+        }
+
+        .footer-link {
+            text-decoration: underline;
+            color: inherit;
+            cursor: pointer
+        }
+
+        .footer-link:hover {
+            color: var(--dark-blue)
+        }
+
+        .menu-divider {
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            margin: 4px 0
+        }
+
+        #help-dropdown {
+            min-width: 240px;
+            padding: 10px
+        }
+
+        .help-title {
+            font-weight: bold;
+            font-size: 11px;
+            margin-bottom: 4px;
+            text-align: center
+        }
+
+        .help-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px
+        }
+
+        .help-icon-box {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: transparent;
+            border: 1px solid #4a4a4a;
+            flex-shrink: 0
+        }
+
+        .help-icon-box img {
+            width: 32px;
+            height: 32px;
+            image-rendering: pixelated
+        }
+
+        .help-text {
+            font-size: 10px;
+            line-height: 1.2;
+            white-space: normal
+        }
+
+        #ranking-modal {
+            display: flex;
+            width: 240px;
+            font-family: 'Tahoma', sans-serif;
+            font-size: 11px;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .ranking-body {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .ranking-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            gap: 5px;
+        }
+
+        .ranking-custom-select {
+            flex: 1;
+            position: relative;
+        }
+
+        .ranking-select-trigger {
+            font-family: 'Tahoma', sans-serif;
+            font-size: 11px;
+            padding: 3px 5px;
+            cursor: pointer;
+            border: 1px solid var(--border-dark);
+            background-color: white;
+            color: black;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            -webkit-tap-highlight-color: transparent;
+            height: 22px;
+            box-sizing: border-box;
+        }
+
+        .ranking-custom-select .menu-dropdown {
+            min-width: 100%;
+            top: 100%;
+            left: 0;
+            margin-top: 1px;
+            box-sizing: border-box;
+            background-color: white;
+            background-image: none;
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border: 1px solid var(--border-dark);
+            cursor: default;
+            table-layout: fixed;
+        }
+
+        .ranking-table th {
+            background: var(--bg-color);
+            border: 1px solid var(--border-dark);
+            padding: 4px;
+            text-align: left;
+        }
+
+        .ranking-table td {
+            border: 1px solid #d0d0d0;
+            padding: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .ranking-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .ranking-table th:nth-child(1),
+        .ranking-table td:nth-child(1) {
+            text-align: center;
+        }
+        
+        .pos-1 { font-weight: bold; color: #d4af37; }
+        .pos-2 { font-weight: bold; color: #c0c0c0; }
+        .pos-3 { font-weight: bold; color: #cd7f32; }
+
+        .stats-table-compact {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border: 1px solid var(--border-dark);
+            cursor: default;
+            margin-top: 0;
+            table-layout: fixed;
+        }
+
+        .stats-table-compact td {
+            border: 1px solid #d0d0d0;
+            padding: 2px 3px;
+            font-size: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .stats-table-compact td:nth-child(1) { width: 25%; }
+        .stats-table-compact td:nth-child(2) { width: 25%; }
+        .stats-table-compact td:nth-child(3) { width: 25%; }
+        .stats-table-compact td:nth-child(4) { width: 25%; }
+
+        .stat-lbl {
+            background: var(--bg-color);
+            font-weight: bold;
+            color: #333;
+        }
+
+        #global-chat {
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-color);
+            position: relative;
+            min-height: 0;
+        }
+
+        .chat-layout-beginner {
+            margin: -8px 10px 10px 10px;
+        }
+
+        .chat-layout-advanced {
+            margin: 0;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .chat-messages {
+            background: white;
+            border: 2px solid;
+            border-color: var(--border-dark) var(--border-light) var(--border-light) var(--border-dark);
+            height: 100px;
+            overflow-y: auto;
+            padding: 2px;
+            margin-bottom: 4px;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Tahoma', sans-serif;
+            font-size: 11px;
+        }
+
+        .chat-layout-beginner .chat-messages {
+            height: 115px;
+        }
+
+        .chat-layout-advanced .chat-messages {
+            height: auto;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .chat-msg {
+            word-break: break-word;
+            margin-bottom: 2px;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 4px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            font-family: 'Tahoma', sans-serif;
+            font-size: 11px;
+            border: 2px solid;
+            border-color: var(--border-dark) var(--border-light) var(--border-light) var(--border-dark);
+            padding: 2px;
+            outline: none;
+            min-width: 0;
+        }
+
+        .chat-users-btn {
+            cursor: pointer;
+            background: white;
+            border: 2px solid;
+            border-color: var(--border-dark) var(--border-light) var(--border-light) var(--border-dark);
+            padding: 0;
+            font-size: 12px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            flex-shrink: 0;
+        }
+
+        .chat-users-btn:active {
+            background: #e0e0e0;
+        }
+
+        .chat-users-dropdown {
+            display: none;
+            position: absolute;
+            bottom: 26px;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border-dark);
+            z-index: 100;
+            width: 120px;
+            max-height: 100px;
+            overflow-y: auto;
+            box-shadow: -3px 3px 0px rgba(0, 0, 0, 0.15);
+        }
+
+        .chat-users-dropdown.show {
+            display: block;
+        }
+
+        .chat-user-item {
+            padding: 4px 6px;
+            font-size: 11px;
+            border-bottom: 1px solid #eee;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-family: 'Tahoma', sans-serif;
+            color: black;
+        }
+
+        .chat-user-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">Jogue Campo Minado Online</h1>
+    <div id="main-container">
+        <div id="header-options" class="links-container">
+            <div class="menu-wrapper">
+                <div class="menu-option" id="game-menu-trigger"><span>J</span>ogo</div>
+                <div id="game-dropdown" class="menu-dropdown">
+                    <div class="menu-item" onclick="changeDifficulty('beginner')">Iniciante</div>
+                    <div class="menu-item" onclick="changeDifficulty('intermediate')">Intermediário</div>
+                    <div class="menu-item" onclick="changeDifficulty('expert')">Avançado</div>
+                    <div class="menu-divider"></div>
+                    <div class="menu-item menu-item-with-submenu" id="menu-custom-trigger" onclick="event.stopPropagation()">Personalizado...
+                        <div class="submenu-side" onclick="event.stopPropagation()">
+                            <div class="submenu-row"><label>Largura:</label><input type="number" id="custom-cols" min="9" max="999"></div>
+                            <div class="submenu-row"><label>Minas:</label><input type="number" id="custom-mines" min="1"></div><button class="submenu-apply-btn" onclick="applyCustomSettings()">Aplicar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="menu-wrapper">
+                <div class="menu-option" id="options-menu-trigger"><span>O</span>pções</div>
+                <div id="options-dropdown" class="menu-dropdown">
+                    <div class="menu-item" id="menu-sound" onclick="toggleSound()">Sons</div>
+                    <div class="menu-item" id="menu-question" onclick="toggleQuestionMark()">Interrogações</div>
+                    <div class="menu-item" id="menu-coordinates" onclick="toggleCoordinates()">Coordenadas</div>
+                </div>
+            </div>
+            <div class="menu-wrapper">
+                <div class="menu-option" id="help-menu-trigger"><span>A</span>juda</div>
+                <div id="help-dropdown" class="menu-dropdown">
+                    <div class="help-title">Como Jogar</div>
+                    <div class="menu-divider"></div>
+                    <div class="help-item">
+                        <div class="help-icon-box"><img src="assets/imagens/bomba.png" alt="Bomba"></div>
+                        <div class="help-text">O objetivo é limpar o campo sem detonar nenhuma bomba.</div>
+                    </div>
+                    <div class="help-item">
+                        <div class="help-icon-box"><img src="assets/imagens/b3.png" alt="Número"></div>
+                        <div class="help-text">Clique com o botão esquerdo para revelar um quadrado. O número indica quantas minas o cercam.</div>
+                    </div>
+                    <div class="help-item">
+                        <div class="help-icon-box"><img src="assets/imagens/bandeira.png" alt="Bandeira"></div>
+                        <div class="help-text">Clique com o botão direito para marcar uma bandeira.</div>
+                    </div>
+                    <div class="help-item">
+                        <div class="help-icon-box"><img src="assets/imagens/pergunta.png" alt="Dúvida"></div>
+                        <div class="help-text">Use a marca de interrogação se não tiver certeza de um local.</div>
+                    </div>
+                    <div class="menu-divider"></div>
+                    <div class="menu-item" onclick="window.open('https://www.reddit.com/r/campominado/', '_blank')">Junte-se à comunidade no Reddit</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="main-wrapper">
+            <div id="game-area-wrapper">
+                <div id="game-area">
+                    <div id="status-bar" class="inset">
+                        <div id="mine-count" class="digital-display"></div>
+                        <div id="face-button" onclick="restart()"></div>
+                        <div id="timer" class="digital-display"></div>
+                    </div>
+                    <div id="board-viewport">
+                        <div id="board-wrapper">
+                            <div id="coord-top" class="coord-top"></div>
+                            <div id="coord-left" class="coord-left"></div>
+                            <div id="board-outer">
+                                <div id="board"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="ranking-modal">
+                    <div class="ranking-body">
+                        <div id="ranking-header" style="display: flex; gap: 4px; text-align: center; align-items: center;">
+                            <input type="text" id="player-name-input" placeholder="Seu Nome" maxlength="12" style="font-family: 'Tahoma', sans-serif; font-size: 11px; padding: 3px; border: 1px solid var(--border-dark); text-align: center; width: 70%; box-sizing: border-box; outline: none;">
+                            <div style="width: 1px; height: 20px; background-color: var(--border-dark); flex-shrink: 0;"></div>
+                            <input type="text" id="room-name-input" placeholder="Sala" maxlength="3" style="font-family: 'Tahoma', sans-serif; font-size: 11px; padding: 3px; border: 1px solid var(--border-dark); text-align: center; width: 30%; box-sizing: border-box; outline: none;">
+                        </div>
+                        <div id="ranking-divider" style="padding: 10px 0; width: 100%; flex-shrink: 0;">
+                            <div style="border-top: 1px solid var(--border-dark);"></div>
+                        </div>
+                        <div class="ranking-controls">
+                            <div class="ranking-custom-select menu-wrapper">
+                                <div class="ranking-select-trigger" onclick="toggleRankingMenu(event, 'ranking-diff-dropdown', 'ranking-diff-arrow')">
+                                    <span id="ranking-diff-label">Iniciante</span>
+                                    <span id="ranking-diff-arrow" style="font-size: 8px;">▼</span>
+                                </div>
+                                <div id="ranking-diff-dropdown" class="menu-dropdown">
+                                    <div class="menu-item selected" onclick="setRankingDiff('beginner', 'Iniciante')">Iniciante</div>
+                                    <div class="menu-item" onclick="setRankingDiff('intermediate', 'Intermediário')">Intermediário</div>
+                                    <div class="menu-item" onclick="setRankingDiff('expert', 'Avançado')">Avançado</div>
+                                </div>
+                            </div>
+                            <div class="ranking-custom-select menu-wrapper">
+                                <div class="ranking-select-trigger" onclick="toggleRankingMenu(event, 'ranking-period-dropdown', 'ranking-period-arrow')">
+                                    <span id="ranking-period-label">Diário</span>
+                                    <span id="ranking-period-arrow" style="font-size: 8px;">▼</span>
+                                </div>
+                                <div id="ranking-period-dropdown" class="menu-dropdown">
+                                    <div class="menu-item selected" onclick="setRankingPeriod('daily', 'Diário')">Diário</div>
+                                    <div class="menu-item" onclick="setRankingPeriod('weekly', 'Semanal')">Semanal</div>
+                                    <div class="menu-item" onclick="setRankingPeriod('monthly', 'Mensal')">Mensal</div>
+                                    <div class="menu-item" onclick="setRankingPeriod('alltime', 'Todos os Tempos')">Todos os Tempos</div>
+                                </div>
+                            </div>
+                        </div>
+                        <table class="ranking-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 30px;">#</th>
+                                    <th>Jogador</th>
+                                    <th style="width: 70px;">Tempo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ranking-tbody">
+                            </tbody>
+                        </table>
+                        
+                        <div id="stats-divider" style="padding: 4px 0; width: 100%; flex-shrink: 0;">
+                            <div style="border-top: 1px solid var(--border-dark);"></div>
+                        </div>
+                        
+                        <table class="stats-table-compact">
+                            <tbody>
+                                <tr><td class="stat-lbl">Tempo</td><td id="stat-rta">0.000</td><td class="stat-lbl">Cliques</td><td id="stat-clicks">0</td></tr>
+                                <tr><td class="stat-lbl">3BV Res.</td><td id="stat-3bv-solved">0/0</td><td class="stat-lbl">Cliques/s</td><td id="stat-clickss">0.000</td></tr>
+                                <tr><td class="stat-lbl">3BV/s</td><td id="stat-3bvs">0.000</td><td class="stat-lbl">Eficiência</td><td id="stat-eff">0.00%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="global-chat">
+                <div style="padding: 4px 0; width: 100%; flex-shrink: 0;">
+                    <div style="border-top: 1px solid var(--border-dark);"></div>
+                </div>
+                <div id="chat-users-dropdown" class="chat-users-dropdown"></div>
+                <div class="chat-messages" id="chat-messages">
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Mensagem..." maxlength="45">
+                    <div id="chat-users-btn" class="chat-users-btn" title="Usuários na sala">
+                        <svg viewBox="0 0 16 16" width="13" height="13" style="fill: #444;">
+                            <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3Zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="footer-links" class="links-container"><a href="sobre/" class="footer-link">Sobre</a><span>|</span><a href="privacidade/" class="footer-link">Privacidade</a></div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://campo-minado-backend.leqndru.workers.dev';
+        const WS_BASE = 'wss://campo-minado-backend.leqndru.workers.dev';
+
+        const CONFIG = {
+            beginner: { rows: 9, cols: 9, mines: 10 },
+            intermediate: { rows: 16, cols: 16, mines: 40 },
+            expert: { rows: 16, cols: 30, mines: 99 },
+            custom: { rows: 16, cols: 30, mines: 99 }
+        };
+        const PATHS = {
+            img: 'assets/imagens/',
+            sounds: 'assets/sons/'
+        };
+        let currentDifficulty = 'beginner';
+        let currentRankingDiff = 'beginner';
+        let currentRankingPeriod = 'daily';
+        
+        let board = [];
+        let flags = new Set();
+        let gameOver = false;
+        let timerInterval = null;
+        let seconds = 0;
+        let firstClick = true;
+        let soundEnabled = true;
+        let coordinatesEnabled = false;
+        let questionMarkEnabled = true;
+        let isMouseDown = false;
+        let currentCellUnderMouse = null;
+        let isDragging = false;
+        let lastDragX = 0;
+        let viewportOffsetC = 0;
+        let visualDOMCells = [];
+        let gameSessionId = null;
+        let isProcessing = false;
+        
+        let gameStats = {
+            startTime: 0,
+            endTime: 0,
+            leftClicks: 0,
+            rightClicks: 0,
+            total3BV: 0
+        };
+        
+        const boardElement = document.getElementById('board');
+        const boardOuter = document.getElementById('board-outer');
+        const mineContainer = document.getElementById('mine-count');
+        const timerContainer = document.getElementById('timer');
+        const faceButton = document.getElementById('face-button');
+        const gameMenuTrigger = document.getElementById('game-menu-trigger');
+        const gameDropdown = document.getElementById('game-dropdown');
+        const optionsMenuTrigger = document.getElementById('options-menu-trigger');
+        const optionsDropdown = document.getElementById('options-dropdown');
+        const helpMenuTrigger = document.getElementById('help-menu-trigger');
+        const helpDropdown = document.getElementById('help-dropdown');
+        const rankingModal = document.getElementById('ranking-modal');
+        
+        const sounds = {
+            click: new Audio(PATHS.sounds + 'clicar.mp3'),
+            bomb: new Audio(PATHS.sounds + 'perder.mp3'),
+            win: new Audio(PATHS.sounds + 'ganhar.mp3')
+        };
+
+        function loadSavedSettings() {
+            try {
+                const savedSettings = localStorage.getItem('campoMinadoSettings');
+                if (savedSettings) {
+                    const data = JSON.parse(savedSettings);
+                    coordinatesEnabled = data.coordinatesEnabled !== undefined ? data.coordinatesEnabled : false;
+                    soundEnabled = data.soundEnabled !== undefined ? data.soundEnabled : true;
+                    questionMarkEnabled = data.questionMarkEnabled !== undefined ? data.questionMarkEnabled : true;
+                }
+            } catch (e) {
+            }
+        }
+
+        function saveSettings() {
+            const data = {
+                soundEnabled: soundEnabled,
+                coordinatesEnabled: coordinatesEnabled,
+                questionMarkEnabled: questionMarkEnabled
+            };
+            try {
+                localStorage.setItem('campoMinadoSettings', JSON.stringify(data))
+            } catch (e) {
+            }
+        }
+
+        function resumeAudioContext() {
+            Object.values(sounds).forEach(audio => {
+                const audioCtx = (audio.context || window.AudioContext || window.webkitAudioContext);
+                if (audioCtx && audioCtx.state === 'suspended') {
+                    audioCtx.resume()
+                }
+            })
+        }
+
+        function closeAllMenus() {
+            gameDropdown.classList.remove('show');
+            optionsDropdown.classList.remove('show');
+            helpDropdown.classList.remove('show');
+            
+            const diffDropdown = document.getElementById('ranking-diff-dropdown');
+            if (diffDropdown) diffDropdown.classList.remove('show');
+            
+            const periodDropdown = document.getElementById('ranking-period-dropdown');
+            if (periodDropdown) periodDropdown.classList.remove('show');
+
+            const diffArrow = document.getElementById('ranking-diff-arrow');
+            if (diffArrow) diffArrow.innerText = '▼';
+            const periodArrow = document.getElementById('ranking-period-arrow');
+            if (periodArrow) periodArrow.innerText = '▼';
+            
+            const chatUsersDropdown = document.getElementById('chat-users-dropdown');
+            if (chatUsersDropdown) chatUsersDropdown.classList.remove('show');
+        }
+        
+        gameMenuTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const wasShown = gameDropdown.classList.contains('show');
+            closeAllMenus();
+            if (!wasShown) gameDropdown.classList.add('show');
+            updateMenuSelection();
+            updateCustomMenuInputs()
+        });
+        
+        optionsMenuTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const wasShown = optionsDropdown.classList.contains('show');
+            closeAllMenus();
+            if (!wasShown) optionsDropdown.classList.add('show');
+            updateOptionsSelection()
+        });
+        
+        helpMenuTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const wasShown = helpDropdown.classList.contains('show');
+            closeAllMenus();
+            if (!wasShown) helpDropdown.classList.add('show')
+        });
+        
+        window.addEventListener('click', () => {
+            closeAllMenus();
+        });
+
+        function toggleRankingMenu(e, dropdownId, arrowId) {
+            e.stopPropagation();
+            const dropdown = document.getElementById(dropdownId);
+            const wasShown = dropdown.classList.contains('show');
+            closeAllMenus();
+            if (!wasShown) {
+                dropdown.classList.add('show');
+                if (arrowId) document.getElementById(arrowId).innerText = '▲';
+            }
+        }
+
+        function setRankingDiff(val, label) {
+            currentRankingDiff = val;
+            document.getElementById('ranking-diff-label').innerText = label;
+            updateRankingSelections();
+            renderRankingTable();
+        }
+
+        function setRankingPeriod(val, label) {
+            currentRankingPeriod = val;
+            document.getElementById('ranking-period-label').innerText = label;
+            updateRankingSelections();
+            renderRankingTable();
+        }
+
+        function updateRankingSelections() {
+            const diffItems = document.getElementById('ranking-diff-dropdown').querySelectorAll('.menu-item');
+            diffItems.forEach(item => {
+                if (item.getAttribute('onclick').includes(`'${currentRankingDiff}'`)) item.classList.add('selected');
+                else item.classList.remove('selected');
+            });
+
+            const periodItems = document.getElementById('ranking-period-dropdown').querySelectorAll('.menu-item');
+            periodItems.forEach(item => {
+                if (item.getAttribute('onclick').includes(`'${currentRankingPeriod}'`)) item.classList.add('selected');
+                else item.classList.remove('selected');
+            });
+        }
+
+        function updateMenuSelection() {
+            const items = gameDropdown.querySelectorAll('.menu-item');
+            const customTrigger = document.getElementById('menu-custom-trigger');
+            let activeDifficulty = currentDifficulty;
+            items.forEach(item => {
+                const onclickAttr = item.getAttribute('onclick');
+                if (!onclickAttr) return;
+                const match = onclickAttr.match(/'([^']+)'/);
+                if (match && match[1] === activeDifficulty) item.classList.add('selected');
+                else item.classList.remove('selected')
+            });
+            if (activeDifficulty === 'custom') customTrigger.classList.add('selected');
+            else customTrigger.classList.remove('selected')
+        }
+
+        function updateCustomMenuInputs() {
+            const colsInput = document.getElementById('custom-cols');
+            const minesInput = document.getElementById('custom-mines');
+
+            if (currentDifficulty === 'custom') {
+                colsInput.value = CONFIG.custom.cols;
+                minesInput.value = CONFIG.custom.mines;
+            } else {
+                colsInput.value = '';
+                minesInput.value = '';
+            }
+
+            const updateMaxMines = () => {
+                let c = parseInt(colsInput.value) || 9;
+                c = Math.min(Math.max(c, 9), 999);
+                minesInput.max = (16 * c) - 1;
+            };
+            
+            colsInput.onchange = updateMaxMines;
+            updateMaxMines();
+        }
+
+        function updateOptionsSelection() {
+            const soundItem = document.getElementById('menu-sound');
+            const questionItem = document.getElementById('menu-question');
+            const coordItem = document.getElementById('menu-coordinates');
+
+            if (soundEnabled) soundItem.classList.add('selected');
+            else soundItem.classList.remove('selected');
+            if (questionMarkEnabled) questionItem.classList.add('selected');
+            else questionItem.classList.remove('selected');
+            if (coordinatesEnabled) coordItem.classList.add('selected');
+            else coordItem.classList.remove('selected');
+        }
+
+        function syncRankingHeight() {
+            const gameArea = document.getElementById('game-area');
+            const rankingModal = document.getElementById('ranking-modal');
+            if (rankingModal && gameArea) {
+                rankingModal.style.maxHeight = gameArea.offsetHeight + 'px';
+            }
+        }
+
+        async function renderRankingTable() {
+            const diff = currentRankingDiff;
+            const tbody = document.getElementById('ranking-tbody');
+            
+            tbody.innerHTML = '';
+            
+            try {
+                const res = await fetch(`${API_BASE}/api/ranking?diff=${diff}`);
+                const data = await res.json();
+                
+                data.forEach((row, i) => {
+                    const tr = document.createElement('tr');
+                    let posClass = '';
+                    if (i === 0) posClass = 'pos-1';
+                    else if (i === 1) posClass = 'pos-2';
+                    else if (i === 2) posClass = 'pos-3';
+                    
+                    tr.innerHTML = `
+                        <td class="${posClass}">${i + 1}</td>
+                        <td>${row.player_name}</td>
+                        <td>${(row.time_ms / 1000).toFixed(3)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            updateOptionsSelection();
+            saveSettings()
+        }
+
+        function toggleCoordinates() {
+            coordinatesEnabled = !coordinatesEnabled;
+            updateOptionsSelection();
+            saveSettings();
+            renderCoordinates();
+        }
+
+        function toggleQuestionMark() {
+            questionMarkEnabled = !questionMarkEnabled;
+            updateOptionsSelection();
+            saveSettings()
+        }
+
+        function getColumnLetter(col) {
+            let temp, letter = '';
+            let c = col;
+            let isNegative = false;
+            if (c < 0) {
+                isNegative = true;
+                c = Math.abs(c) - 1;
+            }
+            while (c >= 0) {
+                temp = c % 26;
+                letter = String.fromCharCode(temp + 65) + letter;
+                c = (c - temp) / 26 - 1;
+            }
+            return (isNegative ? '-' : '') + letter;
+        }
+
+        function renderCoordinates() {
+            const coordTop = document.getElementById('coord-top');
+            const coordLeft = document.getElementById('coord-left');
+            const boardWrapper = document.getElementById('board-wrapper');
+            
+            if (!coordTop || !coordLeft || !boardWrapper) return;
+
+            if (!coordinatesEnabled) {
+                boardWrapper.classList.remove('show-coords');
+                return;
+            }
+            boardWrapper.classList.add('show-coords');
+            
+            const { rows, cols } = CONFIG[currentDifficulty];
+            const visibleCols = currentDifficulty === 'custom' ? Math.min(30, cols) : cols;
+            
+            coordTop.innerHTML = '';
+            for (let vc = 0; vc < visibleCols; vc++) {
+                let c = vc + viewportOffsetC;
+                let div = document.createElement('div');
+                div.className = 'coord-label';
+                div.innerText = c + 1;
+                coordTop.appendChild(div);
+            }
+            
+            coordLeft.innerHTML = '';
+            for (let r = 0; r < rows; r++) {
+                let div = document.createElement('div');
+                div.className = 'coord-label';
+                div.innerText = getColumnLetter(r);
+                coordLeft.appendChild(div);
+            }
+        }
+
+        function changeDifficulty(diff) {
+            currentDifficulty = diff;
+            saveSettings();
+            restart()
+        }
+
+        function applyCustomSettings() {
+            let r = 16;
+            let c = parseInt(document.getElementById('custom-cols').value);
+            let mStr = document.getElementById('custom-mines').value.trim();
+            let m = parseInt(mStr);
+            
+            if (isNaN(c)) c = 9;
+            
+            c = Math.min(Math.max(c, 9), 999);
+            
+            if (mStr === '' || isNaN(m)) {
+                m = Math.floor(r * c * 0.156);
+            }
+            
+            const maxMines = (r * c) - 1;
+            m = Math.min(Math.max(m, 1), maxMines);
+            let matchedDifficulty = 'custom';
+            if (c === CONFIG.intermediate.cols && m === CONFIG.intermediate.mines) {
+                matchedDifficulty = 'intermediate'
+            } else if (c === CONFIG.expert.cols && m === CONFIG.expert.mines) {
+                matchedDifficulty = 'expert'
+            }
+            if (matchedDifficulty === 'custom') {
+                CONFIG.custom.rows = r;
+                CONFIG.custom.cols = c;
+                CONFIG.custom.mines = m
+            }
+            currentDifficulty = matchedDifficulty;
+            closeAllMenus();
+            saveSettings();
+            restart()
+        }
+
+        function playSound(name) {
+            if (soundEnabled && sounds[name]) {
+                sounds[name].currentTime = 0;
+                sounds[name].play().catch(e => {})
+            }
+        }
+
+        function preloadImages() {
+            const images = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'menos', 'iniciar', 'segurar', 'ganhar', 'perder', 'bandeira', 'xbomba', 'bomba', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'pergunta'];
+            images.forEach(name => {
+                const img = new Image();
+                img.src = `${PATHS.img}${name}.png`
+            })
+        }
+
+        function positionChat() {
+            const chatEl = document.getElementById('global-chat');
+            const statsTable = document.querySelector('.stats-table-compact');
+            const statsDivider = document.getElementById('stats-divider');
+            if (!chatEl) return;
+            if (currentDifficulty === 'beginner') {
+                document.getElementById('main-wrapper').appendChild(chatEl);
+                chatEl.className = 'chat-layout-beginner';
+                if (statsTable) {
+                    statsTable.style.marginTop = '0';
+                }
+                if (statsDivider) {
+                    statsDivider.style.marginTop = 'auto';
+                    statsDivider.style.marginBottom = 'auto';
+                }
+            } else {
+                document.querySelector('.ranking-body').appendChild(chatEl);
+                chatEl.className = 'chat-layout-advanced';
+                if (statsTable) {
+                    statsTable.style.marginTop = '0';
+                }
+                if (statsDivider) {
+                    statsDivider.style.marginTop = '0';
+                    statsDivider.style.marginBottom = '0';
+                }
+            }
+        }
+
+        function initGame() {
+            loadSavedSettings();
+            preloadImages();
+            renderRankingTable();
+            restart();
+            setInterval(() => {
+                if (!firstClick && !gameOver) {
+                    updateStatsUI();
+                }
+            }, 47);
+        }
+
+        function setFace(state) {
+            const map = {
+                'start': 'iniciar',
+                'hold': 'segurar',
+                'win': 'ganhar',
+                'lose': 'perder'
+            };
+            let imgName = map[state] || map.start;
+            const currentImg = faceButton.querySelector('img');
+            const newSrc = `${PATHS.img}${imgName}.png`;
+            if (currentImg) {
+                if (currentImg.src !== newSrc) currentImg.src = newSrc
+            } else {
+                faceButton.innerHTML = `<img src="${newSrc}" draggable="false" onerror="this.style.opacity='0'">`
+            }
+        }
+
+        function renderDigitalDisplay(container, value, length = 3) {
+            let strValue = String(value);
+            let isNegative = value < 0;
+            if (isNegative) strValue = String(Math.abs(value)).padStart(length - 1, '0');
+            else strValue = strValue.padStart(length, '0');
+            if (strValue.length > (isNegative ? length - 1 : length)) {
+                strValue = strValue.slice(-(isNegative ? length - 1 : length))
+            }
+            const existingImgs = container.querySelectorAll('img');
+            if (existingImgs.length !== length) {
+                container.innerHTML = '';
+                for (let i = 0; i < length; i++) {
+                    const img = document.createElement('img');
+                    img.draggable = false;
+                    img.onerror = function() {
+                        this.style.opacity = '0'
+                    };
+                    container.appendChild(img)
+                }
+            }
+            const imgs = container.querySelectorAll('img');
+            if (isNegative) {
+                imgs[0].src = `${PATHS.img}menos.png`;
+                for (let i = 1; i < length; i++) {
+                    const char = strValue[i - 1];
+                    imgs[i].src = `${PATHS.img}${char}.png`
+                }
+            } else {
+                for (let i = 0; i < length; i++) {
+                    const char = strValue[i];
+                    imgs[i].src = `${PATHS.img}${char}.png`
+                }
+            }
+        }
+
+        function updateVisuals() {
+            const { rows, cols } = CONFIG[currentDifficulty];
+            const visibleCols = currentDifficulty === 'custom' ? Math.min(30, cols) : cols;
+
+            for (let r = 0; r < rows; r++) {
+                for (let vc = 0; vc < visibleCols; vc++) {
+                    let c = vc + viewportOffsetC;
+                    let cellData = board[r][c];
+                    let el = visualDOMCells[r][vc];
+
+                    el.className = 'cell';
+                    el.innerHTML = '';
+
+                    if (cellData.falseFlag) {
+                        el.classList.add('open');
+                        el.innerHTML = `<img src="${PATHS.img}xbomba.png" class="full-img" draggable="false">`;
+                    } else if (cellData.revealed) {
+                        el.classList.add('open');
+                        if (cellData.mine) {
+                            if (cellData.exploded) el.classList.add('mine');
+                            el.innerHTML = `<img src="${PATHS.img}bomba.png" class="full-img" draggable="false">`;
+                        } else if (cellData.neighborMines > 0) {
+                            el.innerHTML = `<img src="${PATHS.img}b${cellData.neighborMines}.png" class="full-img" draggable="false">`;
+                        }
+                    } else {
+                        el.classList.add('closed');
+                        if (isMouseDown && currentCellUnderMouse && currentCellUnderMouse.r === r && currentCellUnderMouse.vc === vc) {
+                            el.classList.add('active-press');
+                        }
+                        if (cellData.flagged) {
+                            el.innerHTML = `<img src="${PATHS.img}bandeira.png" class="full-img" draggable="false">`;
+                        } else if (cellData.question) {
+                            el.innerHTML = `<img src="${PATHS.img}pergunta.png" class="full-img" draggable="false">`;
+                        }
+                    }
+                }
+            }
+        }
+
+        function attachCellListeners(el, r, vc) {
+            el.addEventListener('mousedown', (e) => {
+                let c = vc + viewportOffsetC;
+                let cellData = board[r][c];
+                if (gameOver || e.button !== 0 || cellData.flagged) return;
+                isMouseDown = true;
+                currentCellUnderMouse = { r, vc };
+                if (!cellData.revealed) el.classList.add('active-press');
+                setFace('hold');
+                resumeAudioContext()
+            });
+            el.addEventListener('mouseover', () => {
+                let c = vc + viewportOffsetC;
+                let cellData = board[r][c];
+                if (gameOver || !isMouseDown) return;
+                if (currentCellUnderMouse) {
+                    let oldEl = visualDOMCells[currentCellUnderMouse.r][currentCellUnderMouse.vc];
+                    if (oldEl) oldEl.classList.remove('active-press');
+                }
+                currentCellUnderMouse = { r, vc };
+                if (!cellData.revealed && !cellData.flagged && !cellData.question) el.classList.add('active-press');
+                setFace('hold')
+            });
+            el.addEventListener('mouseout', () => {
+                if (isMouseDown) el.classList.remove('active-press')
+            });
+            el.addEventListener('mouseup', async (e) => {
+                if (gameOver || e.button !== 0 || !isMouseDown) return;
+                isMouseDown = false;
+                el.classList.remove('active-press');
+                if (currentCellUnderMouse && currentCellUnderMouse.r === r && currentCellUnderMouse.vc === vc) {
+                    let c = vc + viewportOffsetC;
+                    await handleLeftClick(r, c);
+                }
+                if (!gameOver) setFace('start');
+                currentCellUnderMouse = null
+            });
+            el.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                let c = vc + viewportOffsetC;
+                handleRightClick(r, c)
+            })
+        }
+
+        function updateStatsUI() {
+            let timeMs = 0;
+            if (gameStats.startTime > 0) {
+                timeMs = (gameStats.endTime || Date.now()) - gameStats.startTime;
+            }
+            let timeSec = timeMs / 1000;
+            let totalClicks = gameStats.leftClicks + gameStats.rightClicks;
+
+            document.getElementById('stat-rta').innerText = timeSec.toFixed(3);
+            document.getElementById('stat-3bv-solved').innerText = '0/0';
+            document.getElementById('stat-3bvs').innerText = '0.000';
+            document.getElementById('stat-clicks').innerText = totalClicks;
+            document.getElementById('stat-clickss').innerText = timeSec > 0 ? (totalClicks / timeSec).toFixed(3) : '0.000';
+            document.getElementById('stat-eff').innerText = '0.00%';
+        }
+
+        function restart() {
+            viewportOffsetC = 0;
+            gameSessionId = null;
+            isProcessing = false;
+            
+            gameStats = { startTime: 0, endTime: 0, leftClicks: 0, rightClicks: 0, total3BV: 0 };
+            updateStatsUI();
+
+            const { rows, cols, mines } = CONFIG[currentDifficulty];
+            board = [];
+            flags = new Set();
+            gameOver = false;
+            firstClick = true;
+            isMouseDown = false;
+            currentCellUnderMouse = null;
+            setFace('start');
+            stopTimer();
+            seconds = 0;
+            updateTimerDisplay();
+            updateMineDisplay();
+            
+            const visibleCols = currentDifficulty === 'custom' ? Math.min(30, cols) : cols;
+            boardElement.style.gridTemplateColumns = `repeat(${visibleCols}, 32px)`;
+            boardElement.innerHTML = '';
+            visualDOMCells = [];
+            for (let r = 0; r < rows; r++) {
+                visualDOMCells[r] = [];
+                for (let vc = 0; vc < visibleCols; vc++) {
+                    const el = document.createElement('div');
+                    el.classList.add('cell', 'closed');
+                    attachCellListeners(el, r, vc);
+                    boardElement.appendChild(el);
+                    visualDOMCells[r][vc] = el;
+                }
+            }
+            for (let r = 0; r < rows; r++) {
+                board[r] = [];
+                for (let c = 0; c < cols; c++) {
+                    board[r][c] = {
+                        r,
+                        c,
+                        mine: false,
+                        revealed: false,
+                        flagged: false,
+                        question: false,
+                        neighborMines: 0,
+                        falseFlag: false,
+                        exploded: false
+                    };
+                }
+            }
+            updateVisuals();
+            renderCoordinates();
+            positionChat();
+            syncRankingHeight();
+        }
+
+        function isValid(r, c) {
+            const { rows, cols } = CONFIG[currentDifficulty];
+            return r >= 0 && r < rows && c >= 0 && c < cols
+        }
+
+        async function processClick(r, c) {
+            if (!gameSessionId || gameOver) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/game/click`, {
+                    method: 'POST',
+                    headers: { 'X-Game-Session': gameSessionId },
+                    body: JSON.stringify({ r, c })
+                });
+                const data = await res.json();
+
+                if (data.status === 'lost') {
+                    loseGame(data.hitR, data.hitC, data.board);
+                } else {
+                    for (const cell of data.revealedCells) {
+                        board[cell.r][cell.c].revealed = true;
+                        board[cell.r][cell.c].neighborMines = cell.neighborMines;
+                    }
+                    updateVisuals();
+                    if (data.status === 'won') {
+                        await winGame(data.timeMs);
+                    } else {
+                        playSound('click');
+                    }
+                }
+                updateStatsUI();
+            } catch (e) {}
+        }
+
+        async function handleLeftClick(r, c) {
+            if (gameOver || isProcessing) return;
+            isProcessing = true;
+            
+            gameStats.leftClicks++;
+            
+            if (board[r][c].flagged || board[r][c].question) {
+                updateStatsUI();
+                isProcessing = false;
+                return;
+            }
+
+            if (board[r][c].revealed) {
+                let flagCount = 0;
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        let nr = r + dr, nc = c + dc;
+                        if (isValid(nr, nc) && board[nr][nc].flagged) {
+                            flagCount++;
+                        }
+                    }
+                }
+                
+                if (flagCount === board[r][c].neighborMines) {
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            let nr = r + dr, nc = c + dc;
+                            if (isValid(nr, nc) && !board[nr][nc].revealed && !board[nr][nc].flagged && !board[nr][nc].question) {
+                                await processClick(nr, nc);
+                            }
+                        }
+                    }
+                }
+                updateStatsUI();
+                isProcessing = false;
+                return; 
+            }
+            
+            if (firstClick) {
+                firstClick = false;
+                gameStats.startTime = Date.now();
+                startTimer();
+                const { rows, cols, mines } = CONFIG[currentDifficulty];
+                
+                try {
+                    const res = await fetch(`${API_BASE}/api/game/start`, {
+                        method: 'POST',
+                        body: JSON.stringify({ rows, cols, mines, firstR: r, firstC: c })
+                    });
+                    gameSessionId = res.headers.get('X-Game-Session');
+                } catch (e) {}
+            } else if (!timerInterval && !gameOver) {
+                startTimer()
+            }
+            
+            await processClick(r, c);
+            isProcessing = false;
+        }
+
+        function handleRightClick(r, c) {
+            if (gameOver) return;
+
+            gameStats.rightClicks++;
+
+            if (board[r][c].revealed) {
+                updateStatsUI();
+                return;
+            }
+
+            const cell = board[r][c];
+            if (!cell.flagged && !cell.question) {
+                if (flags.size < 999) {
+                    cell.flagged = true;
+                    flags.add(`${r},${c}`)
+                }
+            } else if (cell.flagged) {
+                cell.flagged = false;
+                flags.delete(`${r},${c}`);
+                if (questionMarkEnabled) {
+                    cell.question = true;
+                }
+            } else {
+                cell.question = false;
+            }
+            updateVisuals();
+            updateMineDisplay();
+            updateStatsUI();
+        }
+
+        function loseGame(hitR, hitC, backendBoard) {
+            gameOver = true;
+            gameStats.endTime = Date.now();
+            updateStatsUI();
+            stopTimer();
+            setFace('lose');
+            playSound('bomb');
+            for (let r = 0; r < backendBoard.length; r++) {
+                for (let c = 0; c < backendBoard[0].length; c++) {
+                    board[r][c].mine = backendBoard[r][c].mine;
+                    const cell = board[r][c];
+                    if (cell.flagged && !cell.mine) {
+                        cell.falseFlag = true;
+                    } else if (cell.mine && !cell.flagged) {
+                        cell.revealed = true;
+                        if (r === hitR && c === hitC) cell.exploded = true;
+                    }
+                }
+            }
+            updateVisuals();
+        }
+
+        async function winGame(timeMs) {
+            gameOver = true;
+            gameStats.endTime = Date.now();
+            updateStatsUI();
+            stopTimer();
+            setFace('win');
+            playSound('win');
+            renderDigitalDisplay(mineContainer, 0);
+
+            const playerName = document.getElementById('player-name-input').value.trim();
+            const roomName = document.getElementById('room-name-input').value.trim();
+            
+            if (playerName) {
+                try {
+                    await fetch(`${API_BASE}/api/ranking`, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            playerName: playerName,
+                            roomName: roomName || '',
+                            difficulty: currentDifficulty,
+                            timeMs: timeMs
+                        })
+                    });
+                    renderRankingTable();
+                } catch (e) {}
+            }
+        }
+
+        function updateMineDisplay() {
+            let remainingMines = CONFIG[currentDifficulty].mines - flags.size;
+            if (remainingMines > 999) remainingMines = 999;
+            renderDigitalDisplay(mineContainer, remainingMines)
+        }
+
+        function updateTimerDisplay() {
+            renderDigitalDisplay(timerContainer, seconds)
+        }
+
+        function startTimer() {
+            stopTimer();
+            timerInterval = setInterval(() => {
+                if (seconds < 999) {
+                    seconds++;
+                    updateTimerDisplay();
+                }
+            }, 1000)
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null
+        }
+        
+        window.addEventListener('keydown', (e) => {
+            if (currentDifficulty === 'custom' && CONFIG.custom.cols > 30) {
+                let moved = false;
+                const maxOffset = CONFIG.custom.cols - 30;
+                if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+                    if (viewportOffsetC < maxOffset) {
+                        viewportOffsetC++;
+                        moved = true;
+                    }
+                } else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+                    if (viewportOffsetC > 0) {
+                        viewportOffsetC--;
+                        moved = true;
+                    }
+                }
+                if (moved) {
+                    e.preventDefault();
+                    updateVisuals();
+                    renderCoordinates();
+                }
+            }
+        });
+        window.addEventListener('mousedown', (e) => {
+            if (e.button === 1 && currentDifficulty === 'custom' && CONFIG.custom.cols > 30) {
+                e.preventDefault();
+                isDragging = true;
+                lastDragX = e.clientX;
+            }
+        });
+        window.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                e.preventDefault();
+                const dx = e.clientX - lastDragX;
+                if (Math.abs(dx) > 20) {
+                    const maxOffset = CONFIG.custom.cols - 30;
+                    viewportOffsetC -= Math.sign(dx);
+                    viewportOffsetC = Math.max(0, Math.min(viewportOffsetC, maxOffset));
+                    lastDragX = e.clientX;
+                    updateVisuals();
+                    renderCoordinates();
+                }
+            }
+        });
+        window.addEventListener('mouseup', (e) => {
+            if (isMouseDown) {
+                isMouseDown = false;
+                if (currentCellUnderMouse) {
+                    let oldEl = visualDOMCells[currentCellUnderMouse.r][currentCellUnderMouse.vc];
+                    if (oldEl) oldEl.classList.remove('active-press');
+                }
+                if (!gameOver) setFace('start');
+                currentCellUnderMouse = null
+            }
+            if (e.button === 1) isDragging = false
+        });
+        boardOuter.addEventListener('mouseleave', () => {
+            if (isMouseDown && !gameOver) setFace('start')
+        });
+
+        const roomInputEl = document.getElementById('room-name-input');
+        const playerInputEl = document.getElementById('player-name-input');
+        let currentRoom = '';
+        let isConnected = false;
+        let chatSocket = null;
+        let onlineUsers = 0;
+
+        function checkConnection() {
+            let name = playerInputEl.value.trim();
+            let room = roomInputEl.value.trim();
+            const messages = document.getElementById('chat-messages');
+
+            if (!name || !room) {
+                isConnected = false;
+                currentRoom = '';
+                messages.innerHTML = '';
+                if (chatSocket) {
+                    chatSocket.close();
+                    chatSocket = null;
+                }
+            } else {
+                if (!isConnected || currentRoom !== room) {
+                    isConnected = true;
+                    currentRoom = room;
+                    messages.innerHTML = `<div class="chat-msg"><b>Sistema:</b> Conectado à sala ${currentRoom}.</div>`;
+
+                    if (chatSocket) chatSocket.close();
+                    
+                    chatSocket = new WebSocket(`${WS_BASE}/api/chat/${currentRoom}`);
+                    
+                    chatSocket.onmessage = (e) => {
+                        const data = JSON.parse(e.data);
+                        if (data.type === 'system') {
+                            onlineUsers = data.users;
+                        } else {
+                            const msgDiv = document.createElement('div');
+                            msgDiv.className = 'chat-msg';
+                            const displayName = data.name.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                            const escapedMsg = data.msg.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                            msgDiv.innerHTML = `<b>${displayName}:</b> ${escapedMsg}`;
+                            messages.appendChild(msgDiv);
+                            messages.scrollTop = messages.scrollHeight;
+                        }
+                    };
+                }
+            }
+        }
+
+        roomInputEl.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        roomInputEl.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                checkConnection();
+                this.blur();
+            }
+        });
+
+        playerInputEl.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^a-zA-Z0-9]/g, '');
+        });
+
+        playerInputEl.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                checkConnection();
+                this.blur();
+            }
+        });
+
+        document.getElementById('chat-input').addEventListener('keydown', function(e) {
+            if(e.key === 'Enter') {
+                const input = document.getElementById('chat-input');
+                const msg = input.value.trim();
+                const nameInput = document.getElementById('player-name-input').value.trim();
+                
+                if(msg && nameInput && currentRoom && chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+                    chatSocket.send(JSON.stringify({ name: nameInput, msg: msg }));
+                    input.value = '';
+                }
+            }
+        });
+
+        const chatUsersBtn = document.getElementById('chat-users-btn');
+        const chatUsersDropdown = document.getElementById('chat-users-dropdown');
+
+        chatUsersBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const wasShown = chatUsersDropdown.classList.contains('show');
+            closeAllMenus();
+            if (!wasShown) {
+                chatUsersDropdown.classList.add('show');
+                chatUsersDropdown.innerHTML = '';
+                if (isConnected) {
+                    const div = document.createElement('div');
+                    div.className = 'chat-user-item';
+                    div.innerText = `Usuários online: ${onlineUsers}`;
+                    chatUsersDropdown.appendChild(div);
+                }
+            }
+        });
+
+        initGame();
+    </script>
+</body>
+
+</html>
