@@ -1,0 +1,17 @@
+{
+  "name": "api-campominado",
+  "main": "src/index.js",
+  "compatibility_date": "2024-03-08",
+  "d1_databases": [
+    {
+      "binding": "DB_USERS",
+      "database_name": "minesweeper-users",
+      "database_id": "85b71ce8-cf9a-4a8e-a5b4-0b9cdb557354"
+    },
+    {
+      "binding": "DB_RECORDS",
+      "database_name": "minesweeper-records",
+      "database_id": "cf2409a9-0d2b-4a9e-98b4-d7d4a8c4c0c3"
+    }
+  ]
+}
