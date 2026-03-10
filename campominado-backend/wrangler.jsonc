@@ -1,0 +1,17 @@
+{
+  "name": "campominado-backend",
+  "main": "src/index.js",
+  "compatibility_date": "2024-03-20",
+  "d1_databases": [
+    {
+      "binding": "DB_CONTAS",
+      "database_name": "contas_db",
+      "database_id": "f8ca44ba-1a64-4f07-b2e8-bcebdaa512cc"
+    },
+    {
+      "binding": "DB_RECORDES",
+      "database_name": "recordes_db",
+      "database_id": "b6382553-e357-4bf0-828a-c7854f2b02e2"
+    }
+  ]
+}

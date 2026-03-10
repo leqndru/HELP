@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Jogue o clássico Campo Minado online gratuitamente.">
+    <meta name="keywords" content="campo minado, minesweeper, campo minado online, campo minado original, campo minado windows, minesweeper online, campo minado clássico">
+    <meta name="author" content="Campo Minado Online">
+    <meta name="robots" content="index, follow">
+    <link rel="shortcut icon" href="campominado.ico" type="image/x-icon">
+    <link rel="canonical" href="https://campomina.do/">
+    <title>Campo Minado</title>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4741325548294598" crossorigin="anonymous"></script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": "Campo Minado",
+        "description": "Uma versão web clássica e fiel do jogo de estratégia Campo Minado.",
+        "genre": ["Puzzle", "Strategy"],
+        "gamePlatform": "Web Browser",
+        "applicationCategory": "Game",
+        "operatingSystem": "Any",
+        "inLanguage": "pt-BR",
+        "isAccessibleForFree": true
+    }
+    </script>
+    <style>
+        :root {
+            --bg-color: #c0c0c0;
+            --border-light: #ffffff;
+            --border-dark: #808080;
+            --border-darker: #a0a0a0;
+            --blue: #0000ff;
+            --green: #008000;
+            --red: #ff0000;
+            --dark-blue: #000080;
+            --maroon: #800000;
+            --teal: #008080;
+            --black: #000000;
+            --gray: #808080;
+            --menu-texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+        * { box-sizing: border-box; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-touch-callout: none; }
+        img { image-rendering: -moz-crisp-edges; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; image-rendering: pixelated; -ms-interpolation-mode: nearest-neighbor; display: block; pointer-events: none; }
+        img:not([src]), img[src=""] { opacity: 0; }
+        body, html { margin: 0; padding: 0; min-height: 100vh; background-color: var(--bg-color); font-family: 'Tahoma', 'Segoe UI', sans-serif; display: flex; flex-direction: column; }
+        #page-layout { display: flex; flex-direction: row; width: 100%; flex: 1; }
+        .ad-sidebar { flex: 1; min-width: 160px; }
+        .ad-banner { width: 100%; min-height: 90px; }
+        @media (max-width: 800px) { .ad-sidebar { display: none; } #page-layout { display: grid; padding: 20px 0; } }
+        #cheat-pixel { position: absolute; top: 0; left: 0; width: 1px; height: 1px; z-index: 1000; pointer-events: none; background-color: transparent; }
+        .inset { border: 4px solid; border-color: var(--border-dark) var(--border-light) var(--border-light) var(--border-dark); border-top-right-radius: 2px; border-bottom-left-radius: 2px; overflow: hidden; }
+        #main-container { display: flex; flex-direction: column; align-items: flex-start; align-self: center; margin: auto; width: max-content; flex-shrink: 0; padding: 10px; }
+        #main-wrapper { display: inline-flex; flex-direction: column; padding: 4px; background-color: var(--bg-color); border: 3px solid; border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light); position: relative; }
+        #game-area-wrapper { display: flex; flex-direction: row; align-items: flex-start; }
+        #game-area { display: flex; flex-direction: column; padding: 10px; }
+        #status-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px; margin-bottom: 10px; background-color: var(--bg-color); }
+        .digital-display { background-color: #000; display: flex; align-items: center; justify-content: center; width: 78px; height: 44px; overflow: hidden; padding: 0; border-top: 2px solid var(--border-dark); border-left: 2px solid var(--border-dark); border-right: 2px solid var(--border-light); border-bottom: 2px solid var(--border-light); position: relative; }
+        .digital-display img { width: 28px; height: 40px; }
+        #face-button { width: 44px; height: 44px; display: flex; justify-content: center; align-items: center; cursor: pointer; background-color: var(--bg-color); outline: none; padding: 0; border-top: 4px solid var(--border-light); border-left: 4px solid var(--border-light); border-right: 4px solid var(--border-dark); border-bottom: 4px solid var(--border-dark); box-shadow: -1px -1px 0px 0px var(--border-darker); position: relative; }
+        #face-button img { width: 34px; height: 34px; pointer-events: none; }
+        #face-button:active { border-top: 4px solid var(--border-dark); border-left: 4px solid var(--border-dark); border-right: 1px solid var(--border-dark); border-bottom: 1px solid var(--border-dark); padding-top: 2px; padding-left: 2px; box-shadow: none; }
+        #board-viewport { display: flex; justify-content: center; align-items: center; padding: 0; }
+        #board-outer { padding: 0; display: inline-block; border-top: 6px solid var(--border-dark); border-left: 6px solid var(--border-dark); border-right: 4px solid var(--border-light); border-bottom: 4px solid var(--border-light); border-top-right-radius: 2px; border-bottom-left-radius: 2px; overflow: hidden; }
+        #board { display: grid; background-color: var(--border-dark); gap: 0; }
+        .cell { width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; cursor: default; }
+        .cell img.full-img { width: 32px; height: 32px; }
+        .cell.closed { background-color: var(--bg-color); border: 4px solid; border-color: var(--border-light) var(--border-dark) var(--border-dark) var(--border-light); }
+        .cell.closed.active-press { border: 1px solid var(--border-dark); background-color: var(--bg-color); }
+        .cell.open { background-color: var(--bg-color); border: 1px solid var(--border-dark); }
+        .cell.mine { background-color: var(--red) !important; }
+        .links-container { font-family: 'Tahoma', sans-serif; font-size: 11px; color: #000; display: flex; gap: 8px; }
+        #header-options { margin-bottom: 6px; padding-left: 2px; cursor: default; position: relative; width: 100%; }
+        #header-options .menu-wrapper:last-child { margin-left: auto; }
+        #header-options .menu-wrapper:last-child .menu-dropdown { right: 0; left: auto; }
+        .menu-wrapper { position: relative; display: inline-block; }
+        .menu-option { padding: 2px 6px; cursor: pointer; }
+        .menu-option:hover { background-color: rgba(0, 0, 0, 0.05); }
+        .menu-option span { text-decoration: underline; }
+        .menu-dropdown { display: none; position: absolute; top: 100%; left: 0; z-index: 100; background-color: var(--bg-color); background-image: var(--menu-texture); border: 1px solid var(--border-darker); box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.15); min-width: 140px; padding: 2px 0; }
+        .menu-dropdown.show { display: block; }
+        .menu-item { padding: 6px 12px 6px 28px; font-size: 11px; cursor: pointer; position: relative; white-space: nowrap; color: black; transition: background 0.1s; }
+        .menu-item:hover, .menu-item.active { background-color: rgba(0, 0, 0, 0.08); }
+        .menu-item.selected::before { content: '✓'; position: absolute; left: 10px; font-weight: bold; }
+        #ranking-dropdown .menu-item::before { content: '★'; position: absolute; left: 10px; }
+        .menu-item-with-submenu:hover > .submenu-side { display: block; }
+        .submenu-side { display: none; position: absolute; left: 100%; top: -1px; background-color: var(--bg-color); background-image: var(--menu-texture); border: 1px solid var(--border-darker); box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.15); padding: 10px; min-width: 130px; color: black; cursor: default; }
+        .submenu-side.submenu-menu { padding: 2px 0; min-width: 140px; }
+        .submenu-side.show { display: block; }
+        .submenu-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; gap: 10px; }
+        .submenu-row label { font-size: 10px; }
+        .submenu-row input { width: 45px; font-size: 10px; padding: 1px 3px; border: 1px solid var(--border-dark); background: white; outline: none; -moz-appearance: textfield; }
+        .submenu-row input::-webkit-outer-spin-button, .submenu-row input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .submenu-apply-btn { width: 100%; margin-top: 5px; padding: 4px; font-size: 10px; background: var(--bg-color); border: 1px solid var(--border-dark); cursor: pointer; }
+        .submenu-apply-btn:hover { background-color: #d0d0d0; }
+        .submenu-apply-btn:active { background-color: #b0b0b0; }
+        .ranking-content { padding: 4px; }
+        .ranking-title { font-weight: bold; font-size: 11px; margin-bottom: 8px; text-align: center; border-bottom: 1px solid var(--border-dark); padding-bottom: 4px; }
+        .ranking-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px; gap: 10px; }
+        .ranking-label { color: #444; white-space: nowrap; }
+        .ranking-value { font-weight: bold; font-family: 'Courier New', monospace; }
+        #footer-links { margin-top: 6px; width: 100%; justify-content: flex-end; padding-right: 2px; }
+        .footer-link { text-decoration: underline; color: inherit; cursor: pointer; }
+        .footer-link:hover { color: var(--dark-blue); }
+        .menu-divider { border-top: 1px solid rgba(0, 0, 0, 0.1); margin: 4px 0; }
+        #help-dropdown { min-width: 240px; padding: 10px; }
+        .help-title { font-weight: bold; font-size: 11px; margin-bottom: 4px; text-align: center; }
+        .help-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .help-icon-box { width: 32px; height: 32px; display: flex; justify-content: center; align-items: center; background-color: transparent; border: 1px solid #4a4a4a; flex-shrink: 0; }
+        .help-icon-box img { width: 32px; height: 32px; image-rendering: pixelated; }
+        .help-text { font-size: 10px; line-height: 1.2; white-space: normal; }
+        .admin-scroll-area { max-height: 90px; overflow-y: auto; overflow-x: hidden; margin-right: -6px; margin-bottom: -6px; padding-right: 6px; }
+        .admin-scroll-area::-webkit-scrollbar { width: 10px; }
+        .admin-scroll-area::-webkit-scrollbar-track { background: transparent; }
+        .admin-scroll-area::-webkit-scrollbar-thumb { background-color: var(--border-dark); border-radius: 0; }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+    <h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">Jogue Campo Minado Online</h1>
+    <div class="ad-banner top-banner"></div>
+    <div id="page-layout">
+        <aside class="ad-sidebar left-sidebar"></aside>
+        <div id="main-container">
+            <div id="header-options" class="links-container">
+                <div class="menu-wrapper">
+                    <div class="menu-option" id="game-menu-trigger"><span>J</span>ogo</div>
+                    <div id="game-dropdown" class="menu-dropdown">
+                        <div class="menu-item" onclick="changeDifficulty('beginner')">Iniciante</div>
+                        <div class="menu-item" onclick="changeDifficulty('intermediate')">Intermediário</div>
+                        <div class="menu-item" onclick="changeDifficulty('expert')">Avançado</div>
+                        <div class="menu-divider"></div>
+                        <div class="menu-item menu-item-with-submenu" id="menu-custom-trigger" onclick="event.stopPropagation()">Personalizado...
+                            <div class="submenu-side" onclick="event.stopPropagation()">
+                                <div class="submenu-row"><label>Altura:</label><input type="number" id="custom-rows" value="9" min="1"></div>
+                                <div class="submenu-row"><label>Largura:</label><input type="number" id="custom-cols" value="9" min="1"></div>
+                                <div class="submenu-row"><label>Minas:</label><input type="number" id="custom-mines" value="10" min="1"></div>
+                                <button class="submenu-apply-btn" onclick="applyCustomSettings()">Aplicar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="menu-wrapper">
+                    <div class="menu-option" id="options-menu-trigger"><span>O</span>pções</div>
+                    <div id="options-dropdown" class="menu-dropdown">
+                        <div class="menu-item" id="menu-sound" onclick="toggleSound()">Sons</div>
+                        <div class="menu-item" id="menu-question" onclick="toggleQuestionMark()">Interrogações</div>
+                        <div class="menu-divider"></div>
+                        <div class="menu-item menu-item-with-submenu" id="menu-login-trigger" onclick="event.stopPropagation()">
+                            <span id="login-menu-text">Login</span>
+                            <div class="submenu-side" id="login-submenu" onclick="event.stopPropagation()">
+                                <div id="login-form-area">
+                                    <div class="submenu-row"><label>Nome:</label><input type="text" id="login-username" maxlength="12" style="width: 70px;" oninput="this.value = this.value.replace(/[^a-zA-Z0-9]/g, '')"></div>
+                                    <div class="submenu-row"><label>Senha:</label>
+                                        <div style="position: relative; display: flex; align-items: center;">
+                                            <input type="password" id="login-password" maxlength="16" style="width: 70px; padding-right: 14px;" oninput="this.value = this.value.replace(/\s/g, '')">
+                                            <span style="position: absolute; right: 3px; font-size: 9px; opacity: 0.7; cursor: help;" title="Crie uma senha forte e memorável, pois não será possível alterá-la ou recuperá-la posteriormente.">ⓘ</span>
+                                        </div>
+                                    </div>
+                                    <button class="submenu-apply-btn" onclick="handleLogin()">Entrar / Criar</button>
+                                    <div id="login-message" style="font-size: 10px; color: var(--red); margin-top: 4px; text-align: center; display: none;"></div>
+                                </div>
+                                <div id="logged-in-area" style="display: none; text-align: center;">
+                                    <div style="font-size: 11px; margin-bottom: 6px;">Logado como: <br><strong id="display-logged-user"></strong></div>
+                                    <button class="submenu-apply-btn" onclick="handleLogout()">Sair</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="menu-wrapper">
+                    <div class="menu-option" id="ranking-menu-trigger"><span>R</span>ecordes</div>
+                    <div id="ranking-dropdown" class="menu-dropdown">
+                        <div class="menu-item menu-item-with-submenu">Diário
+                            <div class="submenu-side submenu-menu">
+                                <div class="menu-item menu-item-with-submenu">Iniciante<div class="submenu-side" id="rank-daily-beginner"></div></div>
+                                <div class="menu-item menu-item-with-submenu">Intermediário<div class="submenu-side" id="rank-daily-intermediate"></div></div>
+                                <div class="menu-item menu-item-with-submenu">Avançado<div class="submenu-side" id="rank-daily-expert"></div></div>
+                            </div>
+                        </div>
+                        <div class="menu-item menu-item-with-submenu">Semanal
+                            <div class="submenu-side submenu-menu">
+                                <div class="menu-item menu-item-with-submenu">Iniciante<div class="submenu-side" id="rank-weekly-beginner"></div></div>
+                                <div class="menu-item menu-item-with-submenu">Intermediário<div class="submenu-side" id="rank-weekly-intermediate"></div></div>
+                                <div class="menu-item menu-item-with-submenu">Avançado<div class="submenu-side" id="rank-weekly-expert"></div></div>
+                            </div>
+                        </div>
+                        <div class="menu-item menu-item-with-submenu">Mensal
+                            <div class="submenu-side submenu-menu">
+                                <div class="menu-item menu-item-with-submenu">Iniciante<div class="submenu-side" id="rank-monthly-beginner"></div></div>
+                                <div class="menu-item menu-item-with-submenu">Intermediário<div class="submenu-side" id="rank-monthly-intermediate"></div></div>
+                                <div class="menu-item menu-item-with-submenu">Avançado<div class="submenu-side" id="rank-monthly-expert"></div></div>
+                            </div>
+                        </div>
+                        <div class="menu-item menu-item-with-submenu">Todos os Tempos
+                            <div class="submenu-side submenu-menu">
+                                <div class="menu-item menu-item-with-submenu">Iniciante<div class="submenu-side" id="rank-allTime-beginner"></div></div>
+                                <div class="menu-item menu-item-with-submenu">Intermediário<div class="submenu-side" id="rank-allTime-intermediate"></div></div>
+                                <div class="menu-item menu-item-with-submenu">Avançado<div class="submenu-side" id="rank-allTime-expert"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="menu-wrapper" id="admin-menu-container" style="display: none;">
+                    <div class="menu-option" id="admin-menu-trigger"><span style="color: var(--red);">A</span>dmin</div>
+                    <div id="admin-dropdown" class="menu-dropdown">
+                        <div class="menu-item" onclick="event.stopPropagation(); toggleSubmenu('admin-admins-sub', ['admin-banned-sub'])">Admins
+                            <div class="submenu-side" id="admin-admins-sub" style="min-width: 180px;" onclick="event.stopPropagation()">
+                                <div class="submenu-row" style="justify-content: center;"><input type="text" id="admin-add-input" style="width: 100%;" oninput="updateAdminLists()"></div>
+                                <div style="display: flex; gap: 4px;">
+                                    <button class="submenu-apply-btn" onclick="addAdmin()">Admin</button>
+                                    <button class="submenu-apply-btn" onclick="removeAdmin()">Unadmin</button>
+                                </div>
+                                <div class="menu-divider"></div>
+                                <div id="admin-users-list" class="admin-scroll-area" style="font-size: 10px; color: var(--blue);"></div>
+                            </div>
+                        </div>
+                        <div class="menu-item" onclick="event.stopPropagation(); toggleSubmenu('admin-banned-sub', ['admin-admins-sub'])">Banimentos
+                            <div class="submenu-side" id="admin-banned-sub" style="min-width: 180px;" onclick="event.stopPropagation()">
+                                <div class="submenu-row" style="justify-content: center;"><input type="text" id="admin-ban-input" style="width: 100%;" oninput="updateAdminLists()"></div>
+                                <div style="display: flex; gap: 4px;">
+                                    <button class="submenu-apply-btn" onclick="banUser()">Banir</button>
+                                    <button class="submenu-apply-btn" onclick="unbanUser()">Desbanir</button>
+                                </div>
+                                <div class="menu-divider"></div>
+                                <div id="banned-users-list" class="admin-scroll-area" style="font-size: 10px; color: var(--red);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="menu-wrapper">
+                    <div class="menu-option" id="help-menu-trigger"><span>A</span>juda</div>
+                    <div id="help-dropdown" class="menu-dropdown">
+                        <div class="help-title">Como Jogar</div>
+                        <div class="menu-divider"></div>
+                        <div class="help-item"><div class="help-icon-box"><img src="assets/imagens/bomba.png" alt="Bomba"></div><div class="help-text">O objetivo é limpar o campo sem detonar nenhuma bomba.</div></div>
+                        <div class="help-item"><div class="help-icon-box"><img src="assets/imagens/b3.png" alt="Número"></div><div class="help-text">Clique com o botão esquerdo para revelar um quadrado. O número indica quantas minas o cercam.</div></div>
+                        <div class="help-item"><div class="help-icon-box"><img src="assets/imagens/bandeira.png" alt="Bandeira"></div><div class="help-text">Clique com o botão direito para marcar uma mina suspeita com uma bandeira.</div></div>
+                        <div class="help-item"><div class="help-icon-box"><img src="assets/imagens/pergunta.png" alt="Dúvida"></div><div class="help-text">Use a marca de interrogação se não tiver certeza de um local.</div></div>
+                        <div class="menu-divider"></div>
+                        <div style="text-align: center; margin-top: 6px; padding-bottom: 2px;">
+                            <a href="https://www.reddit.com/r/campominado/" target="_blank" class="footer-link" style="font-size: 11px;" onclick="closeAllMenus()">Junte-se à comunidade no Reddit</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="main-wrapper">
+                <div id="cheat-pixel"></div>
+                <div id="game-area-wrapper">
+                    <div id="game-area">
+                        <div id="status-bar" class="inset">
+                            <div id="mine-count" class="digital-display"></div>
+                            <div id="face-button" onclick="restart()"></div>
+                            <div id="timer" class="digital-display"></div>
+                        </div>
+                        <div id="board-viewport"><div id="board-outer"><div id="board"></div></div></div>
+                    </div>
+                </div>
+            </div>
+            <div id="footer-links" class="links-container">
+                <a href="sobre/" class="footer-link">Sobre</a><span>|</span><a href="privacidade/" class="footer-link">Privacidade</a>
+            </div>
+        </div>
+        <aside class="ad-sidebar right-sidebar"></aside>
+    </div>
+    <div class="ad-banner bottom-banner"></div>
+
+    <script>
+        const API_URL = "campominado-backend.leqndru.workers.dev";
+        
+        const CONFIG = {
+            beginner: { rows: 9, cols: 9, mines: 10 },
+            intermediate: { rows: 16, cols: 16, mines: 40 },
+            expert: { rows: 16, cols: 30, mines: 99 },
+            custom: { rows: 9, cols: 9, mines: 10 }
+        };
+
+        const PATHS = { img: 'assets/imagens/', sounds: 'assets/sons/' };
+
+        let currentDifficulty = 'beginner';
+        let board = [];
+        let revealedCount = 0;
+        let flags = new Set();
+        let gameOver = false;
+        let timerInterval = null;
+        let seconds = 0;
+        let firstClick = true;
+        let cheatActive = false;
+        let keyBuffer = "";
+        let soundEnabled = true;
+        let questionMarkEnabled = true;
+        let isMouseDown = false;
+        let currentCellUnderMouse = null;
+        let playerName = "";
+        let currentGameId = null;
+        
+        let adminsDB = [];
+        let bannedDB = [];
+        let rawRecords = [];
+
+        let boardElement, boardOuter, mineContainer, timerContainer, faceButton, cheatPixel;
+        let gameMenuTrigger, gameDropdown, optionsMenuTrigger, optionsDropdown;
+        let rankingMenuTrigger, rankingDropdown, adminMenuTrigger, adminDropdown, helpMenuTrigger, helpDropdown;
+
+        const sounds = {
+            click: new Audio(PATHS.sounds + 'clicar.mp3'),
+            bomb: new Audio(PATHS.sounds + 'perder.mp3'),
+            win: new Audio(PATHS.sounds + 'ganhar.mp3')
+        };
+
+        function formatName(name) {
+            if (!name) return "";
+            return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+        }
+
+        async function fetchServerData() {
+            try {
+                const res = await fetch(`${API_URL}/api/data`);
+                if(res.ok) {
+                    const data = await res.json();
+                    adminsDB = data.admins || [];
+                    bannedDB = data.bans || [];
+                    rawRecords = data.records || [];
+                    if (playerName && bannedDB.some(b => b.username === playerName)) {
+                        playerName = "";
+                        saveSettings();
+                    }
+                    updateLoginUI();
+                    updateRankingDisplay();
+                    updateAdminLists();
+                }
+            } catch(e) {}
+        }
+
+        function loadSavedSettings() {
+            const savedSettings = localStorage.getItem('campoMinadoSettings');
+            if (savedSettings) {
+                try {
+                    const data = JSON.parse(savedSettings);
+                    soundEnabled = data.soundEnabled !== undefined ? data.soundEnabled : true;
+                    questionMarkEnabled = data.questionMarkEnabled !== undefined ? data.questionMarkEnabled : true;
+                    playerName = data.playerName !== undefined ? formatName(data.playerName) : "";
+                } catch (e) {}
+            }
+            fetchServerData();
+            updateLoginUI();
+        }
+
+        function saveSettings() {
+            localStorage.setItem('campoMinadoSettings', JSON.stringify({ soundEnabled, questionMarkEnabled, playerName }));
+        }
+
+        async function handleLogin() {
+            let user = document.getElementById('login-username').value.trim();
+            const pass = document.getElementById('login-password').value.trim();
+            const msgEl = document.getElementById('login-message');
+            user = formatName(user);
+
+            if (!user || !pass) { msgEl.textContent = "Preencha tudo."; msgEl.style.display = "block"; return; }
+            if (user.length < 3) { msgEl.textContent = "Nome mín. 3 caracteres."; msgEl.style.display = "block"; return; }
+            if (pass.length < 8) { msgEl.textContent = "Senha mín. 8 caracteres."; msgEl.style.display = "block"; return; }
+            if (!/^[a-zA-Z0-9]+$/.test(user)) { msgEl.textContent = "Apenas letras e números."; msgEl.style.display = "block"; return; }
+
+            try {
+                const res = await fetch(`${API_URL}/api/auth`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, password: pass })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    playerName = user;
+                    msgEl.style.display = "none";
+                    saveSettings();
+                    await fetchServerData();
+                    closeAllMenus();
+                } else {
+                    msgEl.textContent = data.error;
+                    msgEl.style.display = "block";
+                }
+            } catch(e) {
+                msgEl.textContent = "Erro no servidor.";
+                msgEl.style.display = "block";
+            }
+        }
+
+        function handleLogout() {
+            playerName = "";
+            saveSettings();
+            updateLoginUI();
+            closeAllMenus();
+        }
+
+        function updateLoginUI() {
+            const formArea = document.getElementById('login-form-area');
+            const loggedArea = document.getElementById('logged-in-area');
+            const displayUser = document.getElementById('display-logged-user');
+            const loginMenuText = document.getElementById('login-menu-text');
+            if (!formArea || !loggedArea || !displayUser || !loginMenuText) return;
+
+            if (playerName) {
+                formArea.style.display = "none";
+                loggedArea.style.display = "block";
+                displayUser.textContent = playerName;
+                loginMenuText.textContent = "Minha Conta";
+            } else {
+                formArea.style.display = "block";
+                loggedArea.style.display = "none";
+                document.getElementById('login-username').value = "";
+                document.getElementById('login-password').value = "";
+                document.getElementById('login-message').style.display = "none";
+                loginMenuText.textContent = "Login";
+            }
+
+            const adminMenu = document.getElementById('admin-menu-container');
+            if (adminMenu) adminMenu.style.display = (playerName && adminsDB.some(a => a.username === playerName)) ? 'inline-block' : 'none';
+        }
+
+        function updateAdminLists() {
+            const bList = document.getElementById('banned-users-list');
+            const aList = document.getElementById('admin-users-list');
+            const banFilter = document.getElementById('admin-ban-input') ? document.getElementById('admin-ban-input').value.trim().toLowerCase() : '';
+            const addFilter = document.getElementById('admin-add-input') ? document.getElementById('admin-add-input').value.trim().toLowerCase() : '';
+
+            if (bList) {
+                bList.innerHTML = bannedDB.slice().reverse().filter(u => u.username.toLowerCase().includes(banFilter)).map((u, i) => {
+                    const isSelected = u.username.toLowerCase() === banFilter;
+                    const bg = isSelected ? 'rgba(0,0,0,0.15)' : 'transparent';
+                    const titleText = (u.banned_by || u.date_banned) ? `title="${[u.banned_by, u.date_banned ? '(' + u.date_banned + ')' : ''].filter(Boolean).join(' • ')}"` : '';
+                    const icon = (u.banned_by || u.date_banned) ? ' <span style="font-size:9px;opacity:0.7;cursor:help;">ⓘ</span>' : '';
+                    return `<div style="display:flex;justify-content:space-between;cursor:pointer;padding:2px;border-radius:2px;background-color:${bg};" onmouseover="if(!${isSelected}) this.style.backgroundColor='rgba(0,0,0,0.08)'" onmouseout="if(!${isSelected}) this.style.backgroundColor='transparent'" onclick="document.getElementById('admin-ban-input').value=${isSelected} ? '' : '${u.username}'; updateAdminLists();"><span ${titleText}>${i + 1}. ${u.username}${icon}</span></div>`;
+                }).join('');
+            }
+            if (aList) {
+                aList.innerHTML = adminsDB.filter(u => u.username !== 'Admin' && u.username.toLowerCase().includes(addFilter)).map((u, i) => {
+                    const isSelected = u.username.toLowerCase() === addFilter;
+                    const bg = isSelected ? 'rgba(0,0,0,0.15)' : 'transparent';
+                    const titleText = (u.added_by || u.date_added) ? `title="${[u.added_by, u.date_added ? '(' + u.date_added + ')' : ''].filter(Boolean).join(' • ')}"` : '';
+                    const icon = (u.added_by || u.date_added) ? ' <span style="font-size:9px;opacity:0.7;cursor:help;">ⓘ</span>' : '';
+                    return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;cursor:pointer;padding:2px;border-radius:2px;background-color:${bg};" onmouseover="if(!${isSelected}) this.style.backgroundColor='rgba(0,0,0,0.08)'" onmouseout="if(!${isSelected}) this.style.backgroundColor='transparent'" onclick="document.getElementById('admin-add-input').value=${isSelected} ? '' : '${u.username}'; updateAdminLists();"><span ${titleText}>${i+1}. ${u.username}${icon}</span></div>`;
+                }).join('');
+            }
+        }
+
+        async function doAdminAction(action, targetInputId) {
+            let target = document.getElementById(targetInputId).value.trim();
+            if (!target || !playerName) return;
+            target = formatName(target);
+            if (target === 'Admin' && (action === 'ban' || action === 'remove_admin')) return;
+            
+            await fetch(`${API_URL}/api/admin`, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action, target, actor: playerName })
+            });
+            document.getElementById(targetInputId).value = '';
+            await fetchServerData();
+        }
+
+        function banUser() { doAdminAction('ban', 'admin-ban-input'); }
+        function unbanUser() { doAdminAction('unban', 'admin-ban-input'); }
+        function addAdmin() { doAdminAction('add_admin', 'admin-add-input'); }
+        function removeAdmin() { doAdminAction('remove_admin', 'admin-add-input'); }
+
+        function getPeriods() {
+            const now = new Date();
+            const day = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+            const month = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+            const d = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            const week = d.getUTCFullYear() + '-W' + weekNo;
+            return { daily: day, weekly: week, monthly: month, allTime: 'all' };
+        }
+
+        function updateRankingDisplay() {
+            const periods = getPeriods();
+            const diffs = ['beginner', 'intermediate', 'expert'];
+            const periodsKeys = ['daily', 'weekly', 'monthly', 'allTime'];
+
+            periodsKeys.forEach(p => {
+                diffs.forEach(diff => {
+                    let filtered = rawRecords.filter(r => r.difficulty === diff);
+                    if (p === 'daily') filtered = filtered.filter(r => r.date_played === periods.daily);
+                    if (p === 'monthly') filtered = filtered.filter(r => r.date_played.startsWith(periods.monthly));
+                    if (p === 'weekly') {
+                        filtered = filtered.filter(r => {
+                            const d = new Date(r.date_played);
+                            const dayNum = d.getUTCDay() || 7;
+                            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+                            const ys = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+                            const wn = Math.ceil((((d - ys) / 86400000) + 1) / 7);
+                            return `${d.getUTCFullYear()}-W${wn}` === periods.weekly;
+                        });
+                    }
+                    
+                    filtered = filtered.slice(0, 10);
+                    let html = '';
+                    if (filtered.length === 0) {
+                        html = '<div class="ranking-row" style="justify-content:center;"><span>---</span></div>';
+                    } else {
+                        filtered.forEach((entry, index) => {
+                            html += `<div class="ranking-row"><span class="ranking-label">${index + 1}. ${entry.username}</span><span class="ranking-value">${String(entry.time_ms).padStart(3, '0')}</span></div>`;
+                        });
+                    }
+                    const targetEl = document.getElementById(`rank-${p}-${diff}`);
+                    if (targetEl) targetEl.innerHTML = html;
+                });
+            });
+        }
+
+        function resumeAudioContext() {
+            Object.values(sounds).forEach(audio => {
+                const audioCtx = (audio.context || window.AudioContext || window.webkitAudioContext);
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            });
+        }
+
+        function closeAllMenus() {
+            if (gameDropdown) gameDropdown.classList.remove('show');
+            if (optionsDropdown) optionsDropdown.classList.remove('show');
+            if (rankingDropdown) rankingDropdown.classList.remove('show');
+            if (helpDropdown) helpDropdown.classList.remove('show');
+            if (typeof adminDropdown !== 'undefined' && adminDropdown) adminDropdown.classList.remove('show');
+            document.querySelectorAll('.submenu-side.show').forEach(el => {
+                el.classList.remove('show');
+                if (el.parentElement) el.parentElement.classList.remove('active');
+            });
+        }
+
+        function toggleSubmenu(id, otherIds = []) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const isShown = el.classList.contains('show');
+            otherIds.forEach(oid => {
+                const other = document.getElementById(oid);
+                if (other) { other.classList.remove('show'); if (other.parentElement) other.parentElement.classList.remove('active'); }
+            });
+            if (isShown) { el.classList.remove('show'); if (el.parentElement) el.parentElement.classList.remove('active'); } 
+            else { el.classList.add('show'); if (el.parentElement) el.parentElement.classList.add('active'); }
+        }
+
+        function updateMenuSelection() {
+            const items = gameDropdown.querySelectorAll('.menu-item');
+            const customTrigger = document.getElementById('menu-custom-trigger');
+            items.forEach(item => {
+                const onclickAttr = item.getAttribute('onclick');
+                if (!onclickAttr) return;
+                const match = onclickAttr.match(/'([^']+)'/);
+                if (match && match[1] === currentDifficulty) item.classList.add('selected');
+                else item.classList.remove('selected');
+            });
+            if (currentDifficulty === 'custom') customTrigger.classList.add('selected');
+            else customTrigger.classList.remove('selected');
+        }
+
+        function updateCustomMenuInputs() {
+            const currentConf = CONFIG[currentDifficulty];
+            if(document.getElementById('custom-rows')) document.getElementById('custom-rows').value = currentConf.rows;
+            if(document.getElementById('custom-cols')) document.getElementById('custom-cols').value = currentConf.cols;
+            if(document.getElementById('custom-mines')) document.getElementById('custom-mines').value = currentConf.mines;
+        }
+
+        function updateOptionsSelection() {
+            const soundItem = document.getElementById('menu-sound');
+            const questionItem = document.getElementById('menu-question');
+            if(soundItem) { if (soundEnabled) soundItem.classList.add('selected'); else soundItem.classList.remove('selected'); }
+            if(questionItem) { if (questionMarkEnabled) questionItem.classList.add('selected'); else questionItem.classList.remove('selected'); }
+        }
+
+        function toggleSound() { soundEnabled = !soundEnabled; updateOptionsSelection(); saveSettings(); closeAllMenus(); }
+        function toggleQuestionMark() { questionMarkEnabled = !questionMarkEnabled; updateOptionsSelection(); saveSettings(); closeAllMenus(); }
+        function changeDifficulty(diff) { currentDifficulty = diff; updateMenuSelection(); closeAllMenus(); saveSettings(); restart(); }
+
+        function applyCustomSettings() {
+            let r = parseInt(document.getElementById('custom-rows').value);
+            let c = parseInt(document.getElementById('custom-cols').value);
+            let m = parseInt(document.getElementById('custom-mines').value);
+            r = Math.max(isNaN(r) ? 9 : r, 1);
+            c = Math.max(isNaN(c) ? 9 : c, 1);
+            m = Math.min(Math.max(isNaN(m) ? 10 : m, 1), Math.max((r * c) - 1, 1));
+            
+            let matchedDifficulty = 'custom';
+            if (r === CONFIG.beginner.rows && c === CONFIG.beginner.cols && m === CONFIG.beginner.mines) matchedDifficulty = 'beginner';
+            else if (r === CONFIG.intermediate.rows && c === CONFIG.intermediate.cols && m === CONFIG.intermediate.mines) matchedDifficulty = 'intermediate';
+            else if (r === CONFIG.expert.rows && c === CONFIG.expert.cols && m === CONFIG.expert.mines) matchedDifficulty = 'expert';
+            
+            if (matchedDifficulty === 'custom') { CONFIG.custom.rows = r; CONFIG.custom.cols = c; CONFIG.custom.mines = m; }
+            currentDifficulty = matchedDifficulty;
+            updateMenuSelection();
+            closeAllMenus();
+            saveSettings();
+            restart();
+        }
+
+        function playSound(name) {
+            if (soundEnabled && sounds[name]) {
+                sounds[name].currentTime = 0;
+                sounds[name].play().catch(e => {});
+            }
+        }
+
+        function preloadImages() {
+            const images = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'menos', 'iniciar', 'segurar', 'ganhar', 'perder', 'bandeira', 'xbomba', 'bomba', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'pergunta'];
+            images.forEach(name => { const img = new Image(); img.src = `${PATHS.img}${name}.png`; });
+        }
+
+        function initGame() {
+            loadSavedSettings();
+            preloadImages();
+            restart();
+        }
+
+        function setFace(state) {
+            if (!faceButton) return;
+            const map = { 'start': 'iniciar', 'hold': 'segurar', 'win': 'ganhar', 'lose': 'perder' };
+            let imgName = map[state] || map.start;
+            const currentImg = faceButton.querySelector('img');
+            const newSrc = `${PATHS.img}${imgName}.png`;
+            if (currentImg) { if (currentImg.src !== newSrc) currentImg.src = newSrc; } 
+            else { faceButton.innerHTML = `<img src="${newSrc}" draggable="false" onerror="this.style.opacity='0'">`; }
+        }
+
+        function renderDigitalDisplay(container, value, length = 3) {
+            if (!container) return;
+            let strValue = String(value);
+            let isNegative = value < 0;
+            if (isNegative) strValue = String(Math.abs(value)).padStart(length - 1, '0');
+            else strValue = strValue.padStart(length, '0');
+            if (strValue.length > (isNegative ? length - 1 : length)) strValue = strValue.slice(-(isNegative ? length - 1 : length));
+            
+            const existingImgs = container.querySelectorAll('img');
+            if (existingImgs.length !== length) {
+                container.innerHTML = '';
+                for (let i = 0; i < length; i++) {
+                    const img = document.createElement('img');
+                    img.draggable = false;
+                    img.onerror = function() { this.style.opacity = '0' };
+                    container.appendChild(img);
+                }
+            }
+            const imgs = container.querySelectorAll('img');
+            if (isNegative) {
+                imgs[0].src = `${PATHS.img}menos.png`;
+                for (let i = 1; i < length; i++) imgs[i].src = `${PATHS.img}${strValue[i - 1]}.png`;
+            } else {
+                for (let i = 0; i < length; i++) imgs[i].src = `${PATHS.img}${strValue[i]}.png`;
+            }
+        }
+
+        function attachCellListeners(cellElement, cellData) {
+            cellElement.addEventListener('mousedown', (e) => {
+                if (gameOver || e.button !== 0 || cellData.revealed || cellData.flagged) return;
+                isMouseDown = true;
+                currentCellUnderMouse = cellData;
+                cellElement.classList.add('active-press');
+                setFace('hold');
+                resumeAudioContext();
+            });
+            cellElement.addEventListener('mouseover', () => {
+                if (cheatActive && cheatPixel) cheatPixel.style.backgroundColor = cellData.mine ? 'black' : 'transparent';
+                if (gameOver || !isMouseDown) return;
+                if (currentCellUnderMouse) currentCellUnderMouse.element.classList.remove('active-press');
+                currentCellUnderMouse = cellData;
+                if (!cellData.revealed && !cellData.flagged) cellElement.classList.add('active-press');
+                setFace('hold');
+            });
+            cellElement.addEventListener('mouseout', () => {
+                if (cheatActive && cheatPixel) cheatPixel.style.backgroundColor = 'transparent';
+                if (isMouseDown) cellElement.classList.remove('active-press');
+            });
+            cellElement.addEventListener('mouseup', (e) => {
+                if (gameOver || e.button !== 0 || !isMouseDown) return;
+                isMouseDown = false;
+                cellElement.classList.remove('active-press');
+                if (currentCellUnderMouse === cellData) handleLeftClick(cellData.r, cellData.c);
+                if (!gameOver) setFace('start');
+                currentCellUnderMouse = null;
+            });
+            cellElement.addEventListener('contextmenu', (e) => { e.preventDefault(); handleRightClick(cellData.r, cellData.c); });
+        }
+
+        function restart() {
+            if (!boardElement) return;
+            const { rows, cols } = CONFIG[currentDifficulty];
+            board = [];
+            flags = new Set();
+            revealedCount = 0;
+            gameOver = false;
+            firstClick = true;
+            isMouseDown = false;
+            currentCellUnderMouse = null;
+            currentGameId = null;
+            setFace('start');
+            stopTimer();
+            seconds = 0;
+            updateTimerDisplay();
+            updateMineDisplay();
+            boardElement.style.gridTemplateColumns = `repeat(${cols}, 32px)`;
+            boardElement.innerHTML = '';
+            for (let r = 0; r < rows; r++) {
+                board[r] = [];
+                for (let c = 0; c < cols; c++) {
+                    const cellElement = document.createElement('div');
+                    cellElement.classList.add('cell', 'closed');
+                    const cellData = { element: cellElement, r, c, mine: false, revealed: false, flagged: false, question: false, neighborMines: 0 };
+                    attachCellListeners(cellElement, cellData);
+                    boardElement.appendChild(cellElement);
+                    board[r][c] = cellData;
+                }
+            }
+        }
+
+        async function handleLeftClick(r, c) {
+            if (gameOver || board[r][c].flagged || board[r][c].revealed) return;
+            
+            if (firstClick) {
+                firstClick = false;
+                try {
+                    const res = await fetch(`${API_URL}/api/game/start`, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ diff: currentDifficulty, exR: r, exC: c, player: playerName })
+                    });
+                    const data = await res.json();
+                    currentGameId = data.gameId;
+                    placeMinesFromBackend(data.mines);
+                    startTimer();
+                } catch(e) {
+                    firstClick = true;
+                    return;
+                }
+            } else if (!timerInterval && !gameOver) {
+                startTimer();
+            }
+
+            if (board[r][c].mine) loseGame(r, c);
+            else {
+                reveal(r, c);
+                if (isWin()) winGame();
+                else playSound('click');
+            }
+        }
+
+        function placeMinesFromBackend(minesArray) {
+            const { rows, cols } = CONFIG[currentDifficulty];
+            for (let r = 0; r < rows; r++) { for (let c = 0; c < cols; c++) board[r][c].mine = false; }
+            if (minesArray) {
+                minesArray.forEach(coords => { if(board[coords[0]] && board[coords[0]][coords[1]]) board[coords[0]][coords[1]].mine = true; });
+            }
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    board[r][c].neighborMines = board[r][c].mine ? 0 : countNeighbors(r, c);
+                }
+            }
+        }
+
+        function countNeighbors(row, col) {
+            let count = 0;
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    let nr = row + dr, nc = col + dc;
+                    if (isValid(nr, nc) && board[nr][nc].mine) count++;
+                }
+            }
+            return count;
+        }
+
+        function isValid(r, c) {
+            const { rows, cols } = CONFIG[currentDifficulty];
+            return r >= 0 && r < rows && c >= 0 && c < cols;
+        }
+
+        function handleRightClick(r, c) {
+            if (gameOver || board[r][c].revealed) return;
+            const cell = board[r][c];
+            if (!cell.flagged && !cell.question) {
+                if (flags.size < 999) {
+                    cell.flagged = true;
+                    cell.element.innerHTML = `<img src="${PATHS.img}bandeira.png" class="full-img" draggable="false">`;
+                    flags.add(`${r},${c}`);
+                }
+            } else if (cell.flagged) {
+                cell.flagged = false;
+                flags.delete(`${r},${c}`);
+                if (questionMarkEnabled) {
+                    cell.question = true;
+                    cell.element.innerHTML = `<img src="${PATHS.img}pergunta.png" class="full-img" draggable="false">`;
+                } else cell.element.innerHTML = '';
+            } else {
+                cell.question = false;
+                cell.element.innerHTML = '';
+            }
+            updateMineDisplay();
+        }
+
+        function reveal(r, c) {
+            if (!isValid(r, c) || board[r][c].revealed || board[r][c].flagged) return;
+            const cell = board[r][c];
+            cell.revealed = true;
+            cell.question = false;
+            cell.element.classList.remove('closed');
+            cell.element.classList.add('open');
+            revealedCount++;
+            if (cell.neighborMines > 0) {
+                cell.element.innerHTML = `<img src="${PATHS.img}b${cell.neighborMines}.png" class="full-img" draggable="false">`;
+            } else {
+                cell.element.innerHTML = '';
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) reveal(r + dr, c + dc);
+                }
+            }
+        }
+
+        function loseGame(hitR, hitC) {
+            gameOver = true;
+            stopTimer();
+            setFace('lose');
+            playSound('bomb');
+            for (let r = 0; r < board.length; r++) {
+                for (let c = 0; c < board[0].length; c++) {
+                    const cell = board[r][c];
+                    if (cell.flagged && !cell.mine) {
+                        cell.element.classList.replace('closed', 'open');
+                        cell.element.innerHTML = `<img src="${PATHS.img}xbomba.png" class="full-img" draggable="false">`;
+                    } else if (cell.mine && !cell.flagged) {
+                        cell.element.classList.replace('closed', 'open');
+                        cell.element.innerHTML = `<img src="${PATHS.img}bomba.png" class="full-img" draggable="false">`;
+                        if (r === hitR && c === hitC) cell.element.classList.add('mine');
+                    }
+                }
+            }
+        }
+
+        function isWin() {
+            const { rows, cols, mines } = CONFIG[currentDifficulty];
+            return revealedCount === (rows * cols) - mines;
+        }
+
+        async function winGame() {
+            gameOver = true;
+            stopTimer();
+            setFace('win');
+            playSound('win');
+            renderDigitalDisplay(mineContainer, 0);
+            
+            if (currentDifficulty !== 'custom' && playerName && currentGameId) {
+                await fetch(`${API_URL}/api/game/end`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ gameId: currentGameId, time: seconds })
+                });
+                await fetchServerData();
+            }
+        }
+
+        function updateMineDisplay() {
+            let minesLeft = CONFIG[currentDifficulty].mines - flags.size;
+            if (minesLeft > 999) minesLeft = 999;
+            renderDigitalDisplay(mineContainer, minesLeft);
+        }
+
+        function updateTimerDisplay() { renderDigitalDisplay(timerContainer, seconds); }
+
+        function startTimer() {
+            stopTimer();
+            timerInterval = setInterval(() => {
+                if (seconds < 999) { seconds++; updateTimerDisplay(); }
+            }, 1000);
+        }
+
+        function stopTimer() { clearInterval(timerInterval); timerInterval = null; }
+
+        window.addEventListener('keydown', (e) => {
+            if (!e.shiftKey) { keyBuffer = ""; return; }
+            keyBuffer += e.key.toLowerCase();
+            if (keyBuffer.includes("xyzzy")) {
+                cheatActive = !cheatActive;
+                if (!cheatActive && cheatPixel) cheatPixel.style.backgroundColor = 'transparent';
+                keyBuffer = "";
+            }
+            if (keyBuffer.length > 10) keyBuffer = keyBuffer.slice(-5);
+        });
+
+        window.addEventListener('keyup', (e) => { if (e.key === "Shift") keyBuffer = ""; });
+
+        window.addEventListener('mouseup', () => {
+            if (isMouseDown) {
+                isMouseDown = false;
+                if (currentCellUnderMouse) currentCellUnderMouse.element.classList.remove('active-press');
+                if (!gameOver) setFace('start');
+                currentCellUnderMouse = null;
+            }
+        });
+
+        function setupEvents() {
+            boardElement = document.getElementById('board');
+            boardOuter = document.getElementById('board-outer');
+            mineContainer = document.getElementById('mine-count');
+            timerContainer = document.getElementById('timer');
+            faceButton = document.getElementById('face-button');
+            cheatPixel = document.getElementById('cheat-pixel');
+            gameMenuTrigger = document.getElementById('game-menu-trigger');
+            gameDropdown = document.getElementById('game-dropdown');
+            optionsMenuTrigger = document.getElementById('options-menu-trigger');
+            optionsDropdown = document.getElementById('options-dropdown');
+            rankingMenuTrigger = document.getElementById('ranking-menu-trigger');
+            rankingDropdown = document.getElementById('ranking-dropdown');
+            adminMenuTrigger = document.getElementById('admin-menu-trigger');
+            adminDropdown = document.getElementById('admin-dropdown');
+            helpMenuTrigger = document.getElementById('help-menu-trigger');
+            helpDropdown = document.getElementById('help-dropdown');
+
+            if (gameMenuTrigger) {
+                gameMenuTrigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const wasShown = gameDropdown.classList.contains('show');
+                    closeAllMenus();
+                    if (!wasShown) gameDropdown.classList.add('show');
+                    updateMenuSelection();
+                    updateCustomMenuInputs();
+                });
+            }
+
+            if (optionsMenuTrigger) {
+                optionsMenuTrigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const wasShown = optionsDropdown.classList.contains('show');
+                    closeAllMenus();
+                    if (!wasShown) optionsDropdown.classList.add('show');
+                    updateOptionsSelection();
+                });
+            }
+
+            if (rankingMenuTrigger) {
+                rankingMenuTrigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const wasShown = rankingDropdown.classList.contains('show');
+                    closeAllMenus();
+                    if (!wasShown) rankingDropdown.classList.add('show');
+                    updateRankingDisplay();
+                });
+            }
+
+            if (adminMenuTrigger) {
+                adminMenuTrigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const wasShown = adminDropdown.classList.contains('show');
+                    closeAllMenus();
+                    if (!wasShown) adminDropdown.classList.add('show');
+                    updateAdminLists();
+                });
+            }
+
+            if (helpMenuTrigger) {
+                helpMenuTrigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const wasShown = helpDropdown.classList.contains('show');
+                    closeAllMenus();
+                    if (!wasShown) helpDropdown.classList.add('show');
+                });
+            }
+
+            window.addEventListener('click', (e) => { if (!e.target.closest('.menu-dropdown')) closeAllMenus(); });
+            if (boardOuter) { boardOuter.addEventListener('mouseleave', () => { if (isMouseDown && !gameOver) setFace('start'); }); }
+
+            initGame();
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setupEvents);
+        else setupEvents();
+    </script>
+</body>
+</html>
